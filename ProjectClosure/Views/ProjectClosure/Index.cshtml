@@ -1,0 +1,426 @@
+﻿@model ProjectClosure.Models.SearchCriteria
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
+}
+
+
+<style>
+    #progress {
+        text-align: center;
+        z-index: 1000000;
+        overflow: auto;
+        height: 100%;
+    }
+
+    #load {
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        z-index: 9999;
+        background: url("https://www.creditmutuel.fr/cmne/fr/banques/webservices/nswr/images/loading.gif") no-repeat center center rgba(0,0,0,0.26);
+        /*background:url("../../Content/Processing.gif") no-repeat center center rgba(0,0,0,0.25);*/
+    }
+
+    thead {
+        color: white;
+        background-color: #34c4f9 !important;
+    }
+
+    .label {
+        color: #34c4f9;
+    }
+
+    h2 {
+        border-bottom: 3px solid #cc9900;
+        font: 2.75em/1.75em Georgia, serif;
+        color: #996600;
+    }
+</style>
+
+<div id="progress" class="modal">
+    <div class="center">
+        <img src="~/Content/loader4.gif" />
+    </div>
+</div>
+
+<h2 style="color: #34c4f9 "> Project Closure</h2>
+
+@using (Html.BeginForm("", "", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+{
+    <div class="container">
+        <br />
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Project, new { @class = "col-md-4 control-label" })
+                        <div class="col-md-8">
+                            @Html.TextBoxFor(model => model.Project,  new { @class = "form-control",@list="Projectlist", @autocomplete = "off" })
+                            <datalist id="Projectlist"></datalist>
+                            @Html.ValidationMessageFor(model => model.Project, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.ClosureDate, new { @class = "col-md-4 control-label" })
+                        <div class="col-md-8">
+                            @Html.EditorFor(model => model.ClosureDate, new { htmlAttributes = new { @class = "form-control ", required = "", @type = "Date", @placeholder = "dd-mm-yyyy" } })
+                            @Html.ValidationMessageFor(model => model.ClosureDate, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Division, new { @class = "col-md-4 control-label" })
+                        <div class="col-md-8">
+                            @Html.TextBoxFor(model => model.Division, new { @class = "form-control", @readonly = "readonly" })
+                            @Html.ValidationMessageFor(model => model.Division, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Customer, new { @class = "col-md-4 control-label" })
+                        <div class="col-md-8">
+                            @Html.TextBoxFor(model => model.Customer, new { @class = "form-control", @readonly = "readonly" })
+                            @Html.ValidationMessageFor(model => model.Customer, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.WIPAc, new { @class = "col-md-4 control-label" })
+                        <div class="col-md-8">
+                            @Html.TextBoxFor(model => model.WIPAc, new { @class = "form-control", @list = "Accountlist", @autocomplete = "off" })
+                            <datalist id="Accountlist"></datalist>
+                            @Html.ValidationMessageFor(model => model.WIPAc, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="col-md-offset-10 col-md-2">
+                    <div class="form-group">
+                        @*<button type="button" class="btn btn-primary" id="btExcel">Excel</button>*@
+                        <button type="button" class="btn btn-primary" id="btnok">Load</button>
+                        <button type="button" class="btn btn-primary" id="btnClose" name="Close">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script src="~/Scripts/FClient.js"></script>
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.js"></script>
+
+    <link href="~/Content/toastr.min.css" rel="stylesheet" />
+    <script src="~/Scripts/toastr.js"></script>
+
+    <script>
+        var compId=@ViewBag.CompId;
+        let selectedProject = "";
+        let Accountid = "";
+        toastr.options = {
+            "closeButton": true,
+            "debug": false,
+            "newestOnTop": true,
+            "progressBar": true,
+            "positionClass": "toast-top-right",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "500",
+            "hideDuration": "500",
+            "timeOut": "2500",
+            "extendedTimeOut": "500",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        };
+        var multiselectConfig = {
+            includeSelectAllOption: false,
+            enableFiltering: true,
+            enableCaseInsensitiveFiltering: true,
+            filterBehavior: 'text',
+            selectAllJustVisible: false,
+            selectAllText: 'Select All',
+            buttonWidth: '280px',
+            dropRight: true,
+            maxHeight: 250,
+            includeResetOption: false,
+            nonSelectedText: 'Choose an Option'
+        };
+
+        $(window).on("load", function () {
+            debugger;
+            getSetPropertyForMastersField();
+            var date = new Date($.now());
+            var dateString = (date.getFullYear() + '-'
+                + ('0' + (date.getMonth() + 1)).slice(-2)
+                + '-' + ('0' + (date.getDate())).slice(-2));
+            $('#ClosureDate').val(dateString);
+            
+            $("#Projectlist").empty();
+            //$('.multiselect-container').children().eq(1).text('');
+            //$("#Project").find('option:selected').text('');
+            //$('#Project').multiselect(multiselectConfig);
+            //$('.multiselect-container').children().eq(1).text('')
+            //$("#Project").find('option:selected').text('');
+            //$('.multiselect-native-select ul li input[type="radio"]').css('padding-left', '0px');
+            //$('.multiselect-native-select ul li input[type="radio"]').css('display', 'none');
+            //$('.multiselect-container li a label').css('padding', '0px');
+            //$('.multiselect-container li a label').css('padding-left', '10px');
+            //$('.caret').css('float', 'right');
+            //$('.caret').css('margin', '7px 0px 7px 0px');
+            //$('.btn').css('text-align', 'left');
+            //$('.multiselect-container .active').css('display', 'none')
+            //$('.multiselect-container').children().eq(1).text('');
+            //$("#Project").on('click', function () {
+            //    getProjectDetails();
+            //});
+            $('#btnok').hide();
+            //$("#WIPAc").on('change', function () {
+            //    if (plac != 0 && customerid != 0 && $('#Division').val() != "" && $("#WIPAc").find('option:selected').val() != "" && $("#WIPAc").find('option:selected').val() != "0" && $("#Project").find('option:selected').val() != "0" && $("#Project").find('option:selected').val() != "" && $("#ClosureDate").val() != "") {
+            //        $('#btnok').show();
+            //    }
+            //});
+
+            //$(".multiselect-native-select").bind('keyup', 'ctrl', fn_Toggle);
+        });
+        let keysPressed = {};
+        let keysPressed2 = {};
+        var operation = "getProjectslistbyName";
+        var operation2 = "getAccountslistbyName";
+        document.addEventListener('keyup', (event) => {
+            if (event.target.id == "Project") {
+                keysPressed[event.key] = true;
+                if (event.key == 'Shift') {
+                    $("#Projectlist").empty();
+                    $("#Project").val('');
+                    if (operation == "getProjectslistbyName") {
+                        operation = "getProjectslistbyCode";
+                    }
+                    else if (operation == "getProjectslistbyCode") {
+                        operation = "getProjectslistbyName";
+                    }
+                  
+                }
+                //else if (keysPressed['Alt'] && event.key == 'n') {
+                //    //alert(event.key);
+                //    keysPressed = {};
+                //    operation = "getProjectslistbyName";
+                //}
+                //else if (keysPressed['Alt'] && event.key == 'c') {
+                //    //alert(event.key);
+                //    keysPressed = {};
+                //    operation = "getProjectslistbyCode";
+                //}
+                else {
+                    //var keyCode = event.keyCode == 0 ? event.charCode : event.keyCode;
+                    //if (((keyCode >= 48 && keyCode <= 57) || keyCode == 32|| (keyCode >= 65 && keyCode <= 90) || (keyCode >= 96 && keyCode <= 107) || (keyCode >= 109 && keyCode <= 111) || (keyCode >= 186 && keyCode <= 222))) {
+                    //    projecttext = $("#Project").val() + event.key;
+                    //}
+                    //else if (keyCode == 8 || keyCode==46) {
+
+                    //    projecttext = $("#Project").val();
+                    //}
+                    $.ajax({
+                        url: path + domain + '/ProjectClosure/getProjectslist',
+                        cache: false,
+                        type: "POST",
+                        datatype: 'JSON',
+                        async: true,
+                        data: { cid: compId, searchtext: $("#Project").val(), Operation: operation },
+                        success: function (response) {
+                            debugger
+                            if (response == "[]") {
+                                getProjectDetails();
+                            }
+                            else {
+                                $("#Projectlist").empty();
+                                var obj = JSON.parse(response);
+                                $.each(obj, function (i, item) {
+                                    $("#Projectlist").append($("<option data-value=" + item.iMasterId + ">" + '(' + item.sCode + ') ' + item.sName + "</option>"));
+                                });
+                            }
+                        },
+                        error: function (err) {
+                            console.log(err)
+                        }
+                    })
+                }
+            }
+            else if (event.target.id == "WIPAc") {
+                keysPressed2[event.key] = true;
+                if (event.key == 'Shift') {
+                    $("#Accountlist").empty();
+                    $("#WIPAc").val('');
+                    if (operation2 == "getAccountslistbyName") {
+                        operation2 = "getAccountslistbyCode";
+                    }
+                    else if (operation2 == "getAccountslistbyCode") {
+                        operation2 = "getAccountslistbyName";
+                    }
+
+                }
+                //else if (keysPressed2['Alt'] && event.key == 'n') {
+                //    keysPressed2 = {};
+                //    operation2 = "getAccountslistbyName";
+                //}
+                //else if (keysPressed2['Alt'] && event.key == 'c') {
+                //    keysPressed2 = {};
+                //    operation2 = "getAccountslistbyCode";
+                //}
+                else {
+                    $.ajax({
+                        url: path + domain + '/ProjectClosure/getAccountslist',
+                        cache: false,
+                        type: "POST",
+                        datatype: 'JSON',
+                        async: true,
+                        data: { cid: compId, searchtext: $("#WIPAc").val(), Operation: operation2 },
+                        success: function (response) {
+                            debugger
+                            if (response == "[]") {
+                                LoadButtonToggleCondition();
+                            }
+                            else {
+                                $("#Accountlist").empty();
+                                var obj = JSON.parse(response);
+                                $.each(obj, function (i, item) {
+                                    $("#Accountlist").append($("<option data-value=" + item.iMasterId + ">" + '(' + item.sCode + ') ' + item.sName + "</option>"));
+                                });
+                            }
+                        },
+                        error: function (err) {
+                            console.log(err)
+                        }
+                    })
+                }
+            }
+        });
+
+        function LoadButtonToggleCondition() {
+            if (plac != 0 && customerid != 0 && $('#Division').val() != "" && $("#WIPAc").val() != "" && $("#WIPAc").val() != "0" && $("#Project").val() != "0" && $("#Project").val() != "" && $("#ClosureDate").val() != "") {
+                $('#btnok').show();
+            }
+        }
+        
+        var path = '@System.Web.Configuration.WebConfigurationManager.AppSettings["IpAddress"]';
+            var domain ='@System.Web.Configuration.WebConfigurationManager.AppSettings["domain"]';
+
+        //----------------------------- report method calling ------------------------------------
+
+        $("#btnok").click(function () {
+            $("#progress").show();
+            debugger
+            var CompanyId=compId;
+            selectedProject =  $('#Projectlist option').filter(function () {
+                return this.value == $("#Project").val();
+            }).data('value');
+
+            Accountid = $('#Accountlist option').filter(function () {
+                return this.value == $("#WIPAc").val();
+            }).data('value');
+
+            var ReportDate = $("#ClosureDate").val();
+
+            var showPrint=true;
+
+
+            if(selectedProject==""){
+                toastr.warning("Please Select One Project");
+                $("#progress").hide();
+            }
+
+            else  if(ReportDate==""){
+                toastr.warning("Please Provide Date");
+                $("#progress").hide();
+            }
+
+            else {
+                window.location.href = path + domain + "/ProjectClosure/ProjectClosureReport?CompanyId=" + CompanyId + "&Project=" + selectedProject + "&ReportDate=" + ReportDate + "&Account=" + Accountid + "&ProjectName=" + $("#Project").val() + "&AccountName=" + $('#WIPAc').val() + "&Customer=" + $('#Customer').val() + "&Division=" + $('#Division').val() + "&DivisionId=" + DivisionId + "&MLId=" + MlId + "&DivisionParentId=" + DivisionParentId + "&PL_ac=" + plac + "&CustomerId=" + customerid;
+            }
+        });
+        var DivisionId = 0;
+        var MlId = 0;
+        var DivisionParentId = 0;
+        var plac = 0;
+        var customerid = 0;
+        function getProjectDetails() {
+            $('#btnok').hide();
+            var SelectValue = $('#Projectlist option').filter(function () {
+                return this.value == $("#Project").val();
+            }).data('value');
+            $.ajax({
+                url: path + domain +'/ProjectClosure/getProjectDetails',
+                cache: false,
+                type: "POST",
+                datatype: 'JSON',
+                async: true,
+                data: { CompanyId: compId, SelectValue: SelectValue },
+                success: function (response) {
+                    debugger
+                    var obj = JSON.parse(response);
+                    $('#Division').val(obj[0].Division);
+                    $('#Customer').val(obj[0].Customer);
+                    DivisionId = obj[0].DivisionId;
+                    MlId = obj[0].MLId;
+                    DivisionParentId = obj[0].iParentId;
+                    plac = obj[0].ProfitLossAC;
+                    customerid = obj[0].CustomerId;
+                    LoadButtonToggleCondition();
+                },
+                error: function (err) {
+                    console.log(err)
+                }
+            })
+        }
+
+
+        $('#btnClose').click(function () {
+            debugger;
+            Focus8WAPI.gotoHomePage();
+        });
+
+        //--------------------------------------------- Focus8W js file -------------------------------
+
+        function getSetPropertyForMastersField() {
+            // Focus8WAPI.getGlobalValue("fnGetValueCallBack1", "COMPANYID", 1);
+            Focus8WAPI.getGlobalValue("fnGetValueCallBack1", "", 1);
+
+        }
+
+        function fnGetValueCallBack1(objWrapperResult) {
+
+            var responseData = objWrapperResult.data;
+            if (objWrapperResult.requestType == 1) {
+                if (objWrapperResult.iRequestId == 1) {
+                    CCode = responseData.CompanyId;//this is the company id
+                }
+            }
+        }
+    </script>
+}
+

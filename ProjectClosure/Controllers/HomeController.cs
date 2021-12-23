@@ -8,22 +8,15 @@ namespace ProjectClosure.Controllers
 {
     public class HomeController : Controller
     {
-        public ActionResult Index()
+        public ActionResult Error(string msg)
         {
-            return View();
-        }
-
-        public ActionResult About()
-        {
-            ViewBag.Message = "Your application description page.";
+            ViewBag.msg = msg;
 
             return View();
         }
 
-        public ActionResult Contact()
+        public ActionResult Success()
         {
-            ViewBag.Message = "Your contact page.";
-
             return View();
         }
     }

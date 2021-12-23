@@ -1,0 +1,297 @@
+﻿@model ProjectClosure.Models.ProjectClosureModel
+
+@{
+    ViewBag.Title = "ProjectClosureReport";
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
+}
+
+@using (Html.BeginForm("ExcelGenerate", "ProjectClosure", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+{
+    <style>
+        #progress {
+            text-align: center;
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            opacity: 0.5;
+            z-index: 1500;
+            background: url("https://www.creditmutuel.fr/cmne/fr/banques/webservices/nswr/images/loading.gif") no-repeat center center rgba(0,0,0,0.26);
+            /*background:url("../../Content/Processing.gif") no-repeat center center rgba(0,0,0,0.25);*/
+        }
+
+        .subtotal {
+            /*background-color:#0073AA !important;*/
+            color: black;
+        }
+
+        #BaseCurrency {
+            text-align: right;
+        }
+
+        .label {
+            color: #34c4f9;
+        }
+
+        h2 {
+            border-bottom: 3px solid #cc9900;
+            font: 2.75em/1.75em Georgia, serif;
+            color: #996600;
+            text-align: center;
+        }
+
+        tr.highlighted td {
+            background: brown;
+        }
+
+        .center {
+            text-align: center;
+        }
+
+        #Totaltr {
+            background-color: #99ccff;
+        }
+
+        body {
+            padding: 0px 20px !important;
+        }
+
+        .table .thead-dark th {
+            color: #fff;
+            background-color: #286090;
+            /*border-color: #32383e;*/
+        }
+
+        /* This is what we are focused on */
+        .table-wrap {
+            overflow-y: scroll;
+            height: 500px;
+            font-size: 0.8em;
+        }
+
+            .table-wrap th {
+                position: sticky;
+                top: 0;
+            }
+
+            .table-wrap thead {
+                position: sticky;
+                top: 0;
+            }
+
+        /* A bit more styling to make it look better */
+        .table-wrap {
+            /*background: CadetBlue;*/
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th {
+            background: #DDD;
+        }
+
+        td, th {
+            padding: 0.3rem !important;
+            text-align: left;
+        }
+
+        .nav-tabs > li.active > a, .nav-tabs > li.active > a:hover, .nav-tabs > li.active > a:focus {
+            background-color: #c7dff1 !important;
+        }
+    </style>
+
+    <div id="progress" class="modal">
+        <div class="center">
+            <img src="~/Content/loader4.gif" />
+        </div>
+    </div>
+    <input type="hidden" id="cid" name="cid" />
+    <input type="hidden" id="sid" name="sid" />
+    <input type="hidden" id="uid" name="uid" />
+
+    <h2 style="color: #34c4f9 ;text-align:center;"> Project Closure List</h2>
+    <div class="row form-group" style="margin-top:1%">
+        <div class="col-lg-4 col-md-4 col-sm-4" style="text-align:center;">
+        </div>
+        <div class="col-lg-4 col-md-4 col-sm-4" style="text-align:center;">
+
+        </div>
+        <div class="col-lg-4 col-md-4 col-sm-4" style="text-align:center;">
+            <button type="submit" id="btnExcel" class="btn btn-primary btn-sm">Export to Excel</button>
+            @Html.ActionLink("Back", "Index", "ProjectClosure", new { @CompanyId = TempData["CompanyId"] }, new { @class = "btn btn-primary btn-sm" })
+            <button type="button" id="btnPost" class="btn btn-primary btn-sm">Post</button>
+        </div>
+    </div>
+    <div class="row form-group">
+        <div class="col-lg-12 col-md-12 col-sm-12">
+            <div class="table-wrap" style="height:auto !important">
+                <table class="table table-bordered table-striped" border="1" id="tagtable">
+                    <thead class="thead-dark">
+                        <tr id="tableHead">
+                            <th style="text-align:center;">Cost Center</th>
+                            <th style="text-align:center;">Site</th>
+                            <th style="text-align:center;">Doc No</th>
+                            <th style="text-align:center;">Date</th>
+                            <th style="text-align:center;">Dr</th>
+                            <th style="text-align:center;">Cr</th>
+                            <th style="text-align:center;">Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody id="golden">
+                        @{
+                            try
+                            {
+                                var list = Model.listWIP_Transactions;
+                                if (list != null)
+                                {
+                                    decimal TotalReversal = 0;
+                                    int count = 0;
+                                    foreach (var obj in list)
+                                    {
+
+                                        count++;
+                                    <tr align="center">
+                                        <td style="text-align:center;">@obj.CostCenter</td>
+                                        <td style="text-align:center;">@obj.Site</td>
+                                        <td style="text-align:center;">@obj.DocNo</td>
+                                        <td style="text-align:center;">@obj.Date.ToString().Split(' ')[0]</td>
+                                        <td style="text-align:right;">@obj.Dr.ToString("#,##0.00")</td>
+                                        <td style="text-align:right;">@obj.Cr.ToString("#,##0.00")</td>
+                                        @if (obj.count == obj.rno)
+                                        {
+                                            <td style="text-align:right;">@obj.Balance.ToString("#,##0.00")</td>
+                                            TotalReversal = Convert.ToDecimal(obj.Balance) + TotalReversal;
+                                        }
+                                        else
+                                        {
+                                            <td style="text-align:center;"></td>
+                                        }
+
+                                    </tr>
+                                        if (obj.count == obj.rno)
+                                        {
+                                        <tr align="center" style="height:20px">
+                                            <td style="text-align:center;"></td>
+                                            <td style="text-align:center;"></td>
+                                            <td style="text-align:center;"></td>
+                                            <td style="text-align:center;"></td>
+                                            <td style="text-align:center;"></td>
+                                            <td style="text-align:center;"></td>
+                                            <td style="text-align:center;"></td>
+                                        </tr>
+                                        <tr align="center" style="height:20px">
+                                            <td style="text-align:center;"></td>
+                                            <td style="text-align:center;"></td>
+                                            <td style="text-align:center;"></td>
+                                            <td style="text-align:center;"></td>
+                                            <td style="text-align:center;"></td>
+                                            <td style="text-align:center;"></td>
+                                            <td style="text-align:center;"></td>
+                                        </tr>
+                                        }
+                                    }
+                                <tr align="center" class="subtotal">
+                                    <td style="text-align:center;" colspan="6"><b>Total Value for Reversal</b></td>
+                                    <td style="text-align:right;"><b>@TotalReversal.ToString("#,##0.00")</b></td>
+                                </tr>
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    //alert(ex.Message);
+                                }
+                            }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+}
+
+@section Scripts {
+
+    <script src="~/Scripts/FClient.js"></script>
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script>
+        var compId=@TempData["CompanyId"];
+        var path ='@System.Web.Configuration.WebConfigurationManager.AppSettings["IpAddress"]';
+        $(document).ready(function() {
+            debugger
+            getSetPropertyForCompanyId();
+            $('#cid').val(compId);
+            $("#btnPost").click(function () {
+                postProjectClosure();
+            });
+        });
+
+        var path = '@System.Web.Configuration.WebConfigurationManager.AppSettings["IpAddress"]';
+            var domain ='@System.Web.Configuration.WebConfigurationManager.AppSettings["domain"]';
+
+        function postProjectClosure() {
+            $.ajax({
+                url: domain + '/ProjectClosure/ProjectClosurePosting',
+                cache: false,
+                type: "POST",
+                datatype: 'JSON',
+                async: true,
+                data: { CompanyId: compId},
+                success: function (response) {
+                    debugger
+                    if (response == "Success") {
+
+                        window.location.href = path + domain + "/Home/Success"
+                    }
+                    else if (response.split(',')[0] == "Error") {
+                        window.location.href = path + domain + "/Home/Error?msg=" + response.split(',')[1];
+                    }
+                },
+                error: function (err) {
+                    console.log(err)
+                }
+            })
+        }
+
+        function getSetPropertyForCompanyId() {
+            Focus8WAPI.getGlobalValue("fnGetValueCallBack", "*", 2);
+        }
+        let r =1
+        function fnGetValueCallBack2(objWrapperResult) {
+            var bla = "";
+            var responseData = objWrapperResult.data;
+            if (objWrapperResult.requestType == 1) {
+                var Comp = responseData.FieldValue;
+                debugger
+                $('#cid').val(Comp);
+            }
+        }
+
+        function fnGetValueCallBack(objWrapperResult) {
+            try {
+                console.log(`fnGetValueCallBack :: ${r} `,objWrapperResult)
+                var responseData = objWrapperResult.data;
+                debugger
+                console.log(responseData.SessionId);
+                var responseData = objWrapperResult.data;
+                var Comp =responseData.CompanyId;
+                var sessionid = responseData.SessionId;
+                var userid = responseData.LoginId;
+                r++
+                $('#cid').val(Comp);
+                $('#sid').val(sessionid);
+                $('#uid').val(userid);
+            }
+            catch (err) {
+                alert("Exception: {fnGetValueCallBack2} " + err.message);
+                Focus8WAPI.continueModule(Focus8WAPI.ENUMS.MODULE_TYPE.TRANSACTION, true);
+            }
+        }
+    </script>
+    @Scripts.Render("~/bundles/jqueryval")
+}
+
+
