@@ -1,0 +1,169 @@
+﻿
+@{
+    Layout = null;
+}
+
+<style>
+    div.paging-nav {
+        display: inline-block;
+        padding: 0;
+        margin: 0;
+    }
+
+        div.paging-nav a {
+            display: inline;
+        }
+
+        div.paging-nav a {
+            color: black;
+            float: left;
+            padding: 8px 16px;
+            text-decoration: none;
+            border: 1px solid #ddd;
+        }
+
+            div.paging-nav a.active {
+                background-color: navy;
+                color: white;
+                border: 1px solid grey;
+            }
+
+            div.paging-nav a:hover:not(.active) {
+                background-color: lightblue;
+            }
+
+    div.paging-nav {
+        text-align: center;
+        float: right;
+    }
+
+    #progress {
+        text-align: center;
+        top: 40%;
+        left: 50%;
+        overflow: auto;
+        height: 80%;
+    }
+</style>
+<div id="progress1" class="modal">
+    <div class="center">
+        <img src="~/Content/loader1.gif" />
+    </div>
+</div>
+<div class="col-lg-12 col-md-12 col-sm-12">
+    <div class="table-wrap" style="height:auto !important">
+        <table class="table table-bordered table-striped" border="1" id="tableData">
+            <thead class="thead-dark">
+                <tr id="tableHead">
+                    <th style="text-align:center;">Account Type</th>
+                    <th style="text-align:center;">Account Group</th>
+                    <th style="text-align:center;">Account</th>
+                    <th style="text-align:center;">Account Description</th>
+                    <th style="text-align:center;">Cost Center Name</th>
+                    <th style="text-align:center;">Cost Center Code</th>
+                    <th style="text-align:center;">Site Name</th>
+                    <th style="text-align:center;">Site Code</th>
+                    <th style="text-align:center;">Division</th>
+                    <th style="text-align:center;">Project</th>
+                    <th style="text-align:center;">Activities</th>
+                    <th style="text-align:center;">Service Code</th>
+                    <th style="text-align:center;">Currency Name</th>
+                    <th style="text-align:center;">Currency Code</th>
+                    <th style="text-align:center;">Trans Dr</th>
+                    <th style="text-align:center;">Trans Cr</th>
+                    <th style="text-align:center;">Trans Bal</th>
+                    <th style="text-align:center;">Base Dr</th>
+                    <th style="text-align:center;">Base Cr</th>
+                    <th style="text-align:center;">Base Bal</th>
+                </tr>
+            </thead>
+           
+        </table>
+    </div>
+</div>
+<script src="~/Scripts/FClient.js"></script>
+<script src="~/Scripts/jquery-1.10.2.min.js"></script>
+<link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+<script src="~/Scripts/bootstrap.min.js"></script>
+<script src="~/Scripts/jquery-ui.min.js"></script>
+<script src="~/Scripts/paging.js"></script>
+<link href="~/Content/dataTables.min.css" rel="stylesheet" />
+<script src="~/Scripts/dataTables.min.js"></script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        debugger;
+        bindDatatable();
+    });
+
+    function bindDatatable() {
+        var pageno = 0;//$('a.paginate_button.current').text();
+        var rowcount = 10;//$('[name="tableData_length"]').val();
+        var rtype = 'Summary';
+        $.ajax({
+            type: "Get",
+            url: '@Url.Action("_reportpage", "TrialBalance")?pageno=' + parseInt(pageno) + '&rowcount=' + parseInt(rowcount) + '&s=' + '';
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: OnSuccess,
+            failure: function (response) {
+                debugger;
+                alert(response.d);
+            },
+            error: function (response) {
+                debugger;
+                alert(response.d);
+            }
+        });
+        function OnSuccess(response) {
+            debugger;
+            var tables = $.fn.dataTable.fnTables(true);
+            $(tables).each(function () {
+                $(this).dataTable().fnDestroy();
+            });
+            $("#tableData").DataTable(
+                {
+                    bLengthChange: true,
+                    lengthMenu: [[5, 10, -1], [5, 10, "All"]],
+                    bFilter: true,
+                    bSort: true,
+                    bPaginate: true,
+                    data: response,
+                    searchable: false,
+                    'columnDefs': [{
+                        'targets': 0,
+                        'searchable': false,
+                        'orderable': false,
+                        'className': 'dt-body-center',
+                        'render': function (data, type, full, meta) {
+                            return '<input type="checkbox" name="id[]" value="' + $('<div/>').text(data).html() + '">';
+                        }
+                    }],
+                    columns: [
+                        { 'data': '' },
+                        { 'data': 'AccountType' },
+                        { 'data': 'AccountGroup' },
+                        { 'data': 'AccountCode' },
+                        { 'data': 'AccountName' },
+                        { 'data': 'CostCenter' },
+                        { 'data': 'CostCenterCode' },
+                        { 'data': 'Site' },
+                        { 'data': 'SiteCode' },
+                        { 'data': 'Division' },
+                        { 'data': 'Project' },
+                        { 'data': 'Activity' },
+                        { 'data': 'ServiceCode' },
+                        { 'data': 'Currency' },
+                        { 'data': 'CurrencyCode' },
+                        { 'data': 'TranDr' },
+                        { 'data': 'TranCr' },
+                        { 'data': 'TranBal' },
+                        { 'data': 'Debit' },
+                        { 'data': 'Credit' },
+                        { 'data': 'Bal' },
+                    ]
+                });
+        }
+    }
+    
+</script>

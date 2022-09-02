@@ -164,12 +164,16 @@
                             <th style="text-align:center;">Account Group</th>
                             <th style="text-align:center;">Account</th>
                             <th style="text-align:center;">Account Description</th>
-                            <th style="text-align:center;">Cost Center</th>
-                            <th style="text-align:center;">Site</th>
+                            <th style="text-align:center;">Cost Center Name</th>
+                            <th style="text-align:center;">Cost Center Code</th>
+                            <th style="text-align:center;">Site Name</th>
+                            <th style="text-align:center;">Site Code</th>
+                            <th style="text-align:center;">Division</th>
                             <th style="text-align:center;">Project</th>
                             <th style="text-align:center;">Activities</th>
-                            <th style="text-align:center;">Service Code></th>
-                            <th style="text-align:center;">Currency</th>
+                            <th style="text-align:center;">Service Code</th>
+                            <th style="text-align:center;">Currency Name</th>
+                            <th style="text-align:center;">Currency Code</th>
                             <th style="text-align:center;">Trans Dr</th>
                             <th style="text-align:center;">Trans Cr</th>
                             <th style="text-align:center;">Trans Bal</th>
@@ -195,28 +199,32 @@
                                         bal = Convert.ToDecimal(obj.Bal) + bal;
                                         cr = Convert.ToDecimal(obj.Credit) + cr;
                                         count++;
-                                        <tr align="center">
-                                            <td style="text-align:center;">@obj.AccountType</td>
-                                            <td style="text-align:center;">@obj.AccountGroup</td>
-                                            <td style="text-align:center;">@obj.AccountCode</td>
-                                            <td style="text-align:center;">@obj.AccountName</td>
-                                            <td style="text-align:center;">@obj.CostCenter</td>
-                                            <td style="text-align:center;">@obj.Site</td>
-                                            <td style="text-align:center;">@obj.Project</td>
-                                            <td style="text-align:center;">@obj.Activity</td>
-                                            <td style="text-align:center;">@obj.ServiceCode</td>
-                                            <td style="text-align:center;">@obj.Currency</td>
-                                            <td style="text-align:right;">@obj.TranDr.ToString("#,##0.00")</td>
-                                            <td style="text-align:right;">@obj.TranCr.ToString("#,##0.00")</td>
-                                            <td style="text-align:right;">@obj.TranBal.ToString("#,##0.00")</td>
-                                            <td style="text-align:right;">@obj.Debit.ToString("#,##0.00")</td>
-                                            <td style="text-align:right;">@obj.Credit.ToString("#,##0.00")</td>
-                                            <td style="text-align:right;">@obj.Bal.ToString("#,##0.00")</td>
+                                                <tr align="center">
+                                                    <td style="text-align:center;">@obj.AccountType</td>
+                                                    <td style="text-align:center;">@obj.AccountGroup</td>
+                                                    <td style="text-align:center;">@obj.AccountCode</td>
+                                                    <td style="text-align:center;">@obj.AccountName</td>
+                                                    <td style="text-align:center;">@obj.CostCenter</td>
+                                                    <td style="text-align:center;">@obj.CostCenterCode</td>
+                                                    <td style="text-align:center;">@obj.Site</td>
+                                                    <td style="text-align:center;">@obj.SiteCode</td>
+                                                    <td style="text-align:center;">@obj.Division</td>
+                                                    <td style="text-align:center;">@obj.Project</td>
+                                                    <td style="text-align:center;">@obj.Activity</td>
+                                                    <td style="text-align:center;">@obj.ServiceCode</td>
+                                                    <td style="text-align:center;">@obj.Currency</td>
+                                                    <td style="text-align:center;">@obj.CurrencyCode</td>
+                                                    <td style="text-align:right;">@obj.TranDr.ToString("#,##0.00")</td>
+                                                    <td style="text-align:right;">@obj.TranCr.ToString("#,##0.00")</td>
+                                                    <td style="text-align:right;">@obj.TranBal.ToString("#,##0.00")</td>
+                                                    <td style="text-align:right;">@obj.Debit.ToString("#,##0.00")</td>
+                                                    <td style="text-align:right;">@obj.Credit.ToString("#,##0.00")</td>
+                                                    <td style="text-align:right;">@obj.Bal.ToString("#,##0.00")</td>
 
-                                        </tr>
+                                                </tr>
                                     }
                                     <tr align="center" class="subtotal">
-                                        <td style="text-align:center;" colspan="13"><b>Total</b></td>
+                                        <td style="text-align:center;" colspan="17"><b>Total</b></td>
                                         <td style="text-align:right;"><b>@dr.ToString("#,##0.00")</b></td>
                                         <td style="text-align:right;"><b>@cr.ToString("#,##0.00")</b></td>
                                         <td style="text-align:right;"><b>@bal.ToString("#,##0.00")</b></td>

@@ -133,6 +133,27 @@
                     </div>
                 </div>
             </div>
+
+            <div class="col-md-12">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.AccountGroup, new { @class = "col-md-4 control-label" })
+                        <div class="col-md-8">
+                            @Html.DropDownListFor(model => model.AccountGroup, new SelectList(ViewBag.AcGrp, "Value", "Text"), new { @class = "form-control", multiple = "multiple" })
+                            @Html.ValidationMessageFor(model => model.AccountGroup, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Account, new { @class = "col-md-4 control-label" })
+                        <div class="col-md-8">
+                            @Html.DropDownListFor(model => model.Account, new SelectList(ViewBag.Ac, "Value", "Text"), new { @class = "form-control", multiple = "multiple" })
+                            @Html.ValidationMessageFor(model => model.Account, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="row">
@@ -209,6 +230,8 @@
             $('#Site').multiselect(multiselectConfig);
             $('#Activity').multiselect(multiselectConfig);
             $('#ServiceCode').multiselect(multiselectConfig);
+            $('#Account').multiselect(multiselectConfig);
+            $('#AccountGroup').multiselect(multiselectConfig);
         });
         
       
@@ -230,6 +253,10 @@
             selectedServiceCode = "";
             selectedDivisionNames = "";
             selectedCostCenterNames = "";
+            selectedAcs = "";
+            selectedAcGrps = "";
+            selectedAcsName = "";
+            selectedAcGrpsName = "";
 
             var $el = $("#Project");
             $el.find('option:selected').each(function () {
@@ -285,6 +312,29 @@
                 //selectedServiceCode.push($(this).val());
             });
 
+            var $el5 = $("#Account");
+            $el5.find('option:selected').each(function () {
+                if (selectedAc == "") {
+                    selectedAc = $(this).val();
+                    selectedAcsName = $(this).text();
+                }
+                else {
+                    selectedAcs = selectedAcs + "," + $(this).val();
+                    selectedAcsName = selectedAcsName + "," + $(this).text();
+                }
+            });
+            var $el5 = $("#AccountGroup");
+            $el5.find('option:selected').each(function () {
+                if (selectedAcGrps == "") {
+                    selectedAcGrps = $(this).val();
+                    selectedAcGrpsName = $(this).text();
+                }
+                else {
+                    selectedAcGrps = selectedAcGrps + "," + $(this).val();
+                    selectedAcGrpsName = selectedAcGrpsName + "," + $(this).text();
+                }
+            });
+
             var FromDate = $("#FromDate").val();
 
             var ToDate = $("#ToDate").val();
@@ -311,8 +361,12 @@
                 selectedCostCenterNames = "All";
             if (selectedDivisionNames == "")
                 selectedDivisionNames = "All";
-
-            window.location.href = path + domain + "/TrialBalance/TrialBalanceReport?CompanyId=" + CompanyId + "&Projects=" + selectedProjects + "&Divisions=" + selectedDivisions + "&CostCenters=" + selectedCostCenters + "&Sites=" + selectedSites + "&Activities=" + selectedActivities + "&ServiceCodes=" + selectedServiceCode + "&FromDate=" + FromDate + "&ToDate=" + ToDate + "&DivisionNames=" + selectedDivisionNames+"&CostCenterNames="+selectedCostCenterNames;
+            if (selectedAcsName == "")
+                selectedAcsName = "All";
+            if (selectedAcGrpsName == "")
+                selectedAcGrpsName = "All";
+            debugger;
+            window.location.href = path + domain + "/TrialBalance/TrialBalanceReport?CompanyId=" + CompanyId + "&Projects=" + selectedProjects + "&Divisions=" + selectedDivisions + "&CostCenters=" + selectedCostCenters + "&Sites=" + selectedSites + "&Activities=" + selectedActivities + "&ServiceCodes=" + selectedServiceCode + "&FromDate=" + FromDate + "&ToDate=" + ToDate + "&DivisionNames=" + selectedDivisionNames + "&CostCenterNames=" + selectedCostCenterNames + "&AcIds=" + selectedAcs + "&AcNames=" + selectedAcsName + "&AcGrpIds=" + selectedAcGrps + "&AcGrpNames=" + selectedAcGrpsName
         });
         
 

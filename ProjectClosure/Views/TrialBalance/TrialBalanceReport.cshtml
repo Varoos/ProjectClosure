@@ -1,8 +1,7 @@
 ﻿@model ProjectClosure.Models.TrialBalanceModel
 
 @{
-    ViewBag.Title = "TrialBalanceReport";
-    Layout = "~/Views/Shared/_UserLayout.cshtml";
+    Layout = null;
 }
 
 
@@ -66,7 +65,7 @@
         .table-wrap {
             overflow-y: scroll;
             height: 500px;
-            font-size: 0.8em;
+            /*font-size: 0.8em;*/
         }
 
             .table-wrap th {
@@ -151,7 +150,7 @@
         </div>
         <div class="col-lg-4 col-md-4 col-sm-4" style="text-align:center;">
             <button type="submit" id="btnExcel" class="btn btn-primary btn-sm">Export to Excel</button>
-            @Html.ActionLink("Back", "TBIndex", "TrialBalance", new { @CompanyId = TempData["CompanyId"] }, new { @class = "btn btn-primary btn-sm" })
+            @Html.ActionLink("Back", "TBIndex", "TrialBalance", new { @CompanyId = Model.Search.Cid }, new { @class = "btn btn-primary btn-sm" })
         </div>
     </div>
     <div class="row form-group">
@@ -164,13 +163,16 @@
                             <th style="text-align:center;">Account Group</th>
                             <th style="text-align:center;">Account</th>
                             <th style="text-align:center;">Account Description</th>
-                            <th style="text-align:center;">Cost Center</th>
-                            <th style="text-align:center;">Site</th>
+                            <th style="text-align:center;">Cost Center Name</th>
+                            <th style="text-align:center;">Cost Center Code</th>
+                            <th style="text-align:center;">Site Name</th>
+                            <th style="text-align:center;">Site Code</th>
                             <th style="text-align:center;">Division</th>
                             <th style="text-align:center;">Project</th>
                             <th style="text-align:center;">Activities</th>
                             <th style="text-align:center;">Service Code</th>
-                            <th style="text-align:center;">Currency</th>
+                            <th style="text-align:center;">Currency Name</th>
+                            <th style="text-align:center;">Currency Code</th>
                             <th style="text-align:center;">Trans Dr</th>
                             <th style="text-align:center;">Trans Cr</th>
                             <th style="text-align:center;">Trans Bal</th>
@@ -179,7 +181,8 @@
                             <th style="text-align:center;">Base Bal</th>
                         </tr>
                     </thead>
-                    <tbody id="golden">
+
+                    @*<tbody id="golden">
                         @{
                             try
                             {
@@ -196,33 +199,52 @@
                                         bal = Convert.ToDecimal(obj.Bal) + bal;
                                         cr = Convert.ToDecimal(obj.Credit) + cr;
                                         count++;
-                                                <tr align="center">
-                                                    <td style="text-align:center;">@obj.AccountType</td>
-                                                    <td style="text-align:center;">@obj.AccountGroup</td>
-                                                    <td style="text-align:center;">@obj.AccountCode</td>
-                                                    <td style="text-align:center;">@obj.AccountName</td>
-                                                    <td style="text-align:center;">@obj.CostCenter</td>
-                                                    <td style="text-align:center;">@obj.Site</td>
-                                                    <td style="text-align:center;">@obj.Division</td>
-                                                    <td style="text-align:center;">@obj.Project</td>
-                                                    <td style="text-align:center;">@obj.Activity</td>
-                                                    <td style="text-align:center;">@obj.ServiceCode</td>
-                                                    <td style="text-align:center;">@obj.Currency</td>
-                                                    <td style="text-align:right;">@obj.TranDr.ToString("#,##0.00")</td>
-                                                    <td style="text-align:right;">@obj.TranCr.ToString("#,##0.00")</td>
-                                                    <td style="text-align:right;">@obj.TranBal.ToString("#,##0.00")</td>
-                                                    <td style="text-align:right;">@obj.Debit.ToString("#,##0.00")</td>
-                                                    <td style="text-align:right;">@obj.Credit.ToString("#,##0.00")</td>
-                                                    <td style="text-align:right;">@obj.Bal.ToString("#,##0.00")</td>
+                                        <tr align="center">
+                                            <td style="text-align:center;">@obj.AccountType</td>
+                                            <td style="text-align:center;">@obj.AccountGroup</td>
+                                            <td style="text-align:center;">@obj.AccountCode</td>
+                                            <td style="text-align:center;">@obj.AccountName</td>
+                                            <td style="text-align:center;">@obj.CostCenter</td>
+                                            <td style="text-align:center;">@obj.CostCenterCode</td>
+                                            <td style="text-align:center;">@obj.Site</td>
+                                            <td style="text-align:center;">@obj.SiteCode</td>
+                                            <td style="text-align:center;">@obj.Division</td>
+                                            <td style="text-align:center;">@obj.Project</td>
+                                            <td style="text-align:center;">@obj.Activity</td>
+                                            <td style="text-align:center;">@obj.ServiceCode</td>
+                                            <td style="text-align:center;">@obj.Currency</td>
+                                            <td style="text-align:center;">@obj.CurrencyCode</td>
+                                            <td style="text-align:right;">@obj.TranDr.ToString("#,##0.00")</td>
+                                            <td style="text-align:right;">@obj.TranCr.ToString("#,##0.00")</td>
+                                            <td style="text-align:right;">@obj.TranBal.ToString("#,##0.00")</td>
+                                            <td style="text-align:right;">@obj.Debit.ToString("#,##0.00")</td>
+                                            <td style="text-align:right;">@obj.Credit.ToString("#,##0.00")</td>
+                                            <td style="text-align:right;">@obj.Bal.ToString("#,##0.00")</td>
 
-                                                </tr>
+                                        </tr>
                                     }
-                                    <tr align="center" class="subtotal">
-                                        <td style="text-align:center;" colspan="14"><b>Total</b></td>
-                                        <td style="text-align:right;"><b>@dr.ToString("#,##0.00")</b></td>
-                                        <td style="text-align:right;"><b>@cr.ToString("#,##0.00")</b></td>
-                                        <td style="text-align:right;"><b>@bal.ToString("#,##0.00")</b></td>
-                                    </tr>
+                    <tr align="center" class="subtotal">
+                        <td style="text-align:center;"><b>Total</b></td>
+                        <td style="text-align:center;"></td>
+                        <td style="text-align:center;"></td>
+                        <td style="text-align:center;"></td>
+                        <td style="text-align:center;"></td>
+                        <td style="text-align:center;"></td>
+                        <td style="text-align:center;"></td>
+                        <td style="text-align:center;"></td>
+                        <td style="text-align:center;"></td>
+                        <td style="text-align:center;"></td>
+                        <td style="text-align:center;"></td>
+                        <td style="text-align:center;"></td>
+                        <td style="text-align:center;"></td>
+                        <td style="text-align:center;"></td>
+                        <td style="text-align:center;"></td>
+                        <td style="text-align:center;"></td>
+                        <td style="text-align:center;"></td>
+                        <td style="text-align:right;"><b>@dr.ToString("#,##0.00")</b></td>
+                        <td style="text-align:right;"><b>@cr.ToString("#,##0.00")</b></td>
+                        <td style="text-align:right;"><b>@bal.ToString("#,##0.00")</b></td>
+                    </tr>
                                 }
                             }
                             catch (Exception ex)
@@ -230,7 +252,7 @@
                                 //alert(ex.Message);
                             }
                         }
-                    </tbody>
+                    </tbody>*@
                 </table>
             </div>
         </div>
@@ -238,70 +260,180 @@
 
 }
 
-@section Scripts {
 
-    <script src="~/Scripts/FClient.js"></script>
-    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
-    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
-    <script src="~/Scripts/bootstrap.min.js"></script>
+<script src="~/Scripts/FClient.js"></script>
+<script src="~/Scripts/jquery-1.10.2.min.js"></script>
+<link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+<script src="~/Scripts/bootstrap.min.js"></script>
+<script src="~/Scripts/jquery-ui.min.js"></script>
+<link href="~/Content/dataTables.min.css" rel="stylesheet" />
+<script src="~/Scripts/dataTables.min.js"></script>
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" />
+<link href="https://cdn.datatables.net/1.10.20/css/dataTables.bootstrap.min.css" rel="stylesheet" />
+<script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap.min.js"></script>
 
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
-    <!-- jQuery -->
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-    <!-- jQuery UI -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
-    <script src="~/Scripts/paging.js"></script>
-    <script>
-        var compId=@TempData["CompanyId"];
+<script>
+    var compId =@Model.Search.Cid;
         var path = '@System.Web.Configuration.WebConfigurationManager.AppSettings["IpAddress"]';
-        var pagesize ='@System.Web.Configuration.WebConfigurationManager.AppSettings["pagesize"]';
-        $(document).ready(function() {
-            debugger
-            getSetPropertyForCompanyId();
-            $('#cid').val(compId);
-            $('#tableData').paging({ limit: parseInt(pagesize) });
-        });
+        var domain ='@System.Web.Configuration.WebConfigurationManager.AppSettings["domain"]';
 
-            var domain ='@System.Web.Configuration.WebConfigurationManager.AppSettings["domain"]';
+    $(document).ready(function () {
+        bindDatatable();
+        $("#tableData_filter").hide()
+    });
+    function bindDatatable() {
+        var pageno = 0;//$('a.paginate_button.current').text();
+        var rowcount = 10;//$('[name="tableData_length"]').val();
+         datatable = $('#tableData')
+                .DataTable({
+                    "sAjaxSource": path + domain + '/TrialBalance/_reportpage?s=' + '',
+                    "bServerSide": true,
+                    "bProcessing": true,
+                    "bSearchable": true,
+                    "bSort": false,
+                    "order": [[1, 'asc']],
+                    "language": {
+                        "emptyTable": "No record found.",
+                        "processing":
+                            '<i class="fa fa-spinner fa-spin fa-3x fa-fw" style="color:#2a2b2b;"></i><span class="sr-only">Loading...</span> '
+                    },
+                    "columns": [
+                        {
+                            "data": "AccountType",
+                            "autoWidth": true,
+                            "searchable": true
+                        },
+                        {
+                            "data": "AccountGroup",
+                            "autoWidth": true,
+                            "searchable": true
+                        },
+                        {
+                            "data": "AccountCode",
+                            "autoWidth": true,
+                            "searchable": true
+                        },
+                        {
+                            "data": "AccountName",
+                            "autoWidth": true,
+                            "searchable": true
+                        },
+                        {
+                            "data": "CostCenter",
+                            "autoWidth": true,
+                            "searchable": true
+                        },
+                        {
+                            "data": "CostCenterCode",
+                            "autoWidth": true,
+                            "searchable": true
+                        },
+                        {
+                            "data": "Site",
+                            "autoWidth": true,
+                            "searchable": true
+                        },
+                        {
+                            "data": "SiteCode",
+                            "autoWidth": true,
+                            "searchable": true
+                        },
+                        {
+                            "data": "Division",
+                            "autoWidth": true,
+                            "searchable": true
+                        },
+                        {
+                            "data": "Project",
+                            "autoWidth": true,
+                            "searchable": true
+                        },
+                        {
+                            "data": "Activity",
+                            "autoWidth": true,
+                            "searchable": true
+                        },
+                        {
+                            "data": "ServiceCode",
+                            "autoWidth": true,
+                            "searchable": true
+                        },
+                        {
+                            "data": "Currency",
+                            "autoWidth": true,
+                            "searchable": true
+                        },
+                        {
+                            "data": "CurrencyCode",
+                            "autoWidth": true,
+                            "searchable": true
+                        },
+                        {
+                            "data": "TranDr",
+                            "autoWidth": true,
+                            "searchable": true
+                        },
+                        {
+                            "data": "TranCr",
+                            "autoWidth": true,
+                            "searchable": true
+                        },
+                        {
+                            "data": "TranBal",
+                            "autoWidth": true,
+                            "searchable": true
+                        },
+                        {
+                            "data": "Debit",
+                            "autoWidth": true,
+                            "searchable": true
+                        },
+                        {
+                            "data": "Credit",
+                            "autoWidth": true,
+                            "searchable": true
+                        },
+                        {
+                            "data": "Bal",
+                            "autoWidth": true,
+                            "searchable": true
+                        }
+                    ],
+                    "footerCallback": function (tfoot, data, start, end, display) {
+                        var api = this.api();
+                        var p = api.column(14).data().reduce(function (a, b) {
+                            return a + b;
+                        }, 0)
+                        $(api.column(14).footer()).html(p.toFixed(2));
+                        var p1 = api.column(15).data().reduce(function (c, d) {
+                            return c + d;
+                        }, 0)
+                        $(api.column(15).footer()).html(p1.toFixed(2));
+                        var p = api.column(16).data().reduce(function (a, b) {
+                            return a + b;
+                        }, 0)
+                        $(api.column(16).footer()).html(p.toFixed(2));
+                        var p1 = api.column(17).data().reduce(function (c, d) {
+                            return c + d;
+                        }, 0)
+                        $(api.column(17).footer()).html(p1.toFixed(2));
+                        var p = api.column(18).data().reduce(function (a, b) {
+                            return a + b;
+                        }, 0)
+                        $(api.column(18).footer()).html(p.toFixed(2));
+                        var p1 = api.column(19).data().reduce(function (c, d) {
+                            return c + d;
+                        }, 0)
+                        $(api.column(19).footer()).html(p1.toFixed(2));
+                    },
+
+                });
+    }
 
 
-        function getSetPropertyForCompanyId() {
-            Focus8WAPI.getGlobalValue("fnGetValueCallBack", "*", 2);
-        }
-        let r =1
-        function fnGetValueCallBack2(objWrapperResult) {
-            var bla = "";
-            var responseData = objWrapperResult.data;
-            if (objWrapperResult.requestType == 1) {
-                var Comp = responseData.FieldValue;
-                debugger
-                $('#cid').val(Comp);
-            }
-        }
 
-        function fnGetValueCallBack(objWrapperResult) {
-            try {
-                console.log(`fnGetValueCallBack :: ${r} `,objWrapperResult)
-                var responseData = objWrapperResult.data;
-                debugger
-                console.log(responseData.SessionId);
-                var responseData = objWrapperResult.data;
-                var Comp =responseData.CompanyId;
-                var sessionid = responseData.SessionId;
-                var userid = responseData.LoginId;
-                r++
-                $('#cid').val(Comp);
-                $('#sid').val(sessionid);
-                $('#uid').val(userid);
-            }
-            catch (err) {
-                alert("Exception: {fnGetValueCallBack2} " + err.message);
-                Focus8WAPI.continueModule(Focus8WAPI.ENUMS.MODULE_TYPE.TRANSACTION, true);
-            }
-        }
-    </script>
-    @Scripts.Render("~/bundles/jqueryval")
-}
+</script>
+@Scripts.Render("~/bundles/jqueryval")
 
 

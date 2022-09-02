@@ -1,0 +1,236 @@
+USE [Focus8090]
+GO
+/****** Object:  StoredProcedure [dbo].[pCore_CommonSp]    Script Date: 21/04/2022 3:42:08 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+        -- =============================================
+        -- Author:		 Rosmin
+        -- Create date: 13 Oct 2021
+        -- Description: <Common SP for all purpose>
+        -- =============================================
+		--exec [dbo].[pCore_CommonSp] @Operation = getReportData,@p1=164,@p3 ='2021-11-14'
+    ALTER Proc [dbo].[pCore_CommonSp]
+	@Operation varchar(200) =null,
+	@p1 int = null,
+	@p2  int =null,
+	@p3 datetime=null,
+	@p4 nvarchar(100) =null,
+	@p5 nvarchar(500)=null,
+	@p6 nvarchar(200)=null,
+	@p7 nvarchar(200)=null,
+	@p8 nvarchar(200)=null,
+	@p9 nvarchar(1000)=null,
+	@p0 nvarchar(max)=null,
+	@p11 datetime=null,
+	@p12 nvarchar(max)=null,
+	@p13 nvarchar(max)=null
+    as
+    begin	
+	if(@Operation = 'getProjects')-- getting all projects which are open
+	begin
+		select mCore_Project.iMasterId,mCore_Project.sName,mCore_Project.sCode from muCore_Project
+		inner join mCore_Project on muCore_Project.iMasterId = mCore_Project.iMasterId
+		where ProjectStatus = 0 and mCore_Project.iMasterId <>0;
+	end
+	else if(@Operation = 'getProjectslistbyName')-- getting all projects which are open
+	begin
+		select mCore_Project.iMasterId,mCore_Project.sCode,mCore_Project.sName from muCore_Project
+		inner join mCore_Project on muCore_Project.iMasterId = mCore_Project.iMasterId
+		where ProjectStatus = 0 and mCore_Project.sName like @p4+'%' order by sName
+		--exec pCore_CommonSp @Operation='getProjectslistbyName', @p4='a'
+	end
+	else if(@Operation = 'getProjectslistbyCode')-- getting all projects which are open
+	begin
+		select mCore_Project.iMasterId,mCore_Project.sCode, mCore_Project.sName from muCore_Project
+		inner join mCore_Project on muCore_Project.iMasterId = mCore_Project.iMasterId
+		where ProjectStatus = 0 and mCore_Project.sCode like @p4+'%' order by sCode
+	end
+	else if(@Operation = 'getAccounts')-- getting all accounts
+	begin
+		select * from mCore_Account where iMasterId<>0 order by sName
+	end
+	else if(@Operation = 'getAccountslistbyName')-- getting all accounts
+	begin
+		select * from mCore_Account where sName like @p4+'%' order by sName
+	end
+	else if(@Operation = 'getAccountslistbyCode')-- getting all accounts
+	begin
+		select * from mCore_Account where sCode like @p4+'%' order by sCode
+	end
+	else if(@Operation = 'getProjectsDetails')-- getting all projects which are open
+	begin
+		select muCore_Project.iMasterId,d.sName Division,a.sName Customer,muCore_Project.ProfitLossAC,muCore_Project.Customer CustomerId,muCore_Project.Division DivisionId,isnull(t.iParentId,-1) iParentId,(select iMasterId from mCore_Division where sName = 'ML') MLId,ProjectStatus,p.sName ProjectName from muCore_Project
+		inner join mCore_Project p on p.iMasterId = muCore_Project.iMasterId
+		inner join mCore_Division d on muCore_Project.Division = d.iMasterId
+		inner join mCore_Account a on muCore_Project.Customer=a.iMasterId
+		left join mCore_DivisionTreeDetails t on d.iMasterId = t.iMasterId
+		where muCore_Project.iMasterId = @p1;
+	end
+	--exec pCore_CommonSp @Operation=getData,@p1 = 415,@p2 = 2
+	else if(@Operation = 'getData')-- 
+	begin
+
+			DROP TABLE IF EXISTS #ProjectClosureGridData
+			SELECT   cc.sName costcenter, s.sName site,cCore_Vouchers_0.sAbbr+' : '+tCore_Header_0.sVoucherNo DocNo, a.iDate Date, Debit, Credit ,
+						Rank() OVER (ORDER BY cc.sName,s.sName) rank_num,ROW_NUMBER() OVER (PARTITION BY cc.sName,s.sName ORDER BY cc.sName,s.sName,a.sVoucherNo) row_num , a.costcenter CostCenterId, a.site SiteId
+			into #ProjectClosureGridData
+			FROM (
+                SELECT d.iBodyId,t.iTag5 costcenter,t.iTag3011 site,h.sVoucherNo,format(dbo.IntToDate(h.iDate),'dd/MM/yyyy') iDate,
+                CASE WHEN mAmount2 < 0 THEN mAmount2 ELSE 0 END Debit, 
+                CASE WHEN mAmount2 > 0 THEN mAmount2 ELSE 0 END Credit,
+	            iBookNo iMasterId
+                FROM tCore_Data_0 d
+                JOIN tCore_Header_0 h ON d.iHeaderId = h.iHeaderId
+				inner join tCore_Data_Tags_0 t on d.iBodyId = t.iBodyId
+                    WHERE iBookNo = @p1 
+                UNION ALL
+                SELECT d.iBodyId,t.iTag5 costcenter,t.iTag3011 site,h.sVoucherNo,format(dbo.IntToDate(h.iDate),'dd/MM/yyyy') iDate,
+                CASE WHEN mAmount1 < 0 THEN mAmount1 ELSE 0 END Debit, 
+                CASE WHEN mAmount1 > 0 THEN mAmount1 ELSE 0 END Credit,
+				iCode iMasterId
+                FROM tCore_Data_0 d
+                JOIN tCore_Header_0 h ON d.iHeaderId = h.iHeaderId
+				inner join tCore_Data_Tags_0 t on d.iBodyId = t.iBodyId
+                    WHERE iCode = @p1 
+            )a
+            JOIN tCore_Data_0 ON tCore_Data_0.iBodyId = a.iBodyId  
+            JOIN tCore_Header_0 ON tCore_Data_0.iHeaderId = tCore_Header_0.iHeaderId
+			inner join mCore_CostCenter cc on a.costcenter = cc.iMasterId
+			inner join mCore_Site s on a.site = s.iMasterId
+            JOIN cCore_Vouchers_0 WITH (READUNCOMMITTED) ON cCore_Vouchers_0.iVoucherType=tCore_Header_0.iVoucherType
+			LEFT JOIN tCore_Data_Tags_0 ON tCore_Data_Tags_0.iBodyId = tCore_Data_0.iBodyId  
+			WHERE tCore_Data_0.bUpdateFA = 1 AND tCore_Data_0.bSuspendUpdateFA = 0  AND tCore_Header_0.bSuspended = 0 AND tCore_Data_0.iAuthStatus < 2 AND a.iMasterId = @p1  AND (Debit < 0 OR Credit > 0)  AND tCore_Data_Tags_0.iTag3002 =  @p2 
+		
+
+		select * from #ProjectClosureGridData m
+		inner join 
+		(
+		select (sum(Debit) + sum(Credit)) Balance,count(rank_num) c,rank_num n2  from #ProjectClosureGridData
+		group by rank_num
+		)bal on m.rank_num = bal.n2
+
+		--DROP TABLE IF EXISTS #ProjectClosureGridData
+		--select cc.sName costcenter, s.sName site,a.sVoucherNo DocNo,a.iDate Date,sum(a.Debit) Debit, sum(a.Credit) Credit
+		--,Rank() OVER (ORDER BY cc.sName,s.sName) rank_num,ROW_NUMBER() OVER (PARTITION BY cc.sName,s.sName ORDER BY cc.sName,s.sName,a.sVoucherNo) row_num , a.costcenter CostCenterId, a.site SiteId  
+		--into #ProjectClosureGridData
+		--from
+		--(
+		--	select CASE WHEN mAmount1 < 0 THEN abs(mAmount1) ELSE 0 END Debit, CASE WHEN mAmount1 > 0 THEN mAmount1 ELSE 0 END Credit,t.iTag5 costcenter,t.iTag3011 site,h.sVoucherNo,format(dbo.IntToDate(h.iDate),'dd/MM/yyyy') iDate from tCore_Data_0 d 
+		--	inner join tCore_Data_Tags_0 t on d.iBodyId = t.iBodyId
+		--	inner join tCore_Header_0 h on h.iHeaderId = d.iHeaderId
+		--	where d.iCode = @p1 and d.iFaTag = @p2
+		--	union all
+		--	select CASE WHEN mAmount2 < 0 THEN mAmount2 ELSE 0 END Debit, CASE WHEN mAmount2 > 0 THEN mAmount2 ELSE 0 END Credit,t.iTag5 costcenter,t.iTag3011 site,h.sVoucherNo,format(dbo.IntToDate(h.iDate),'dd/MM/yyyy') iDate from tCore_Data_0 d 
+		--	inner join tCore_Data_Tags_0 t on d.iBodyId = t.iBodyId
+		--	inner join tCore_Header_0 h on h.iHeaderId = d.iHeaderId
+		--	where d.iBookNo = @p1 and d.iFaTag = @p2
+		--)a
+		--inner join mCore_CostCenter cc on a.costcenter = cc.iMasterId
+		--inner join mCore_Site s on a.site = s.iMasterId
+		--group by cc.sName,s.sName,a.costcenter,a.site,a.sVoucherNo,a.iDate
+	end
+	else if(@Operation = 'updateProjectStatus')-- getting all accounts
+	begin
+		update muCore_Project set 
+		ProjectStatus = 1 ,
+		ProjectClosureDate = dbo.DateToInt(@p3)
+		where iMasterId = @p1;
+		--exec pCore_CommonSp @Operation=updateProjectStatus, @p1=2,@p3='2021-12-08'
+	end
+	else if(@Operation = 'getBaseCurrency')
+	begin
+		select top 1 iBaseCurrencyId from mCore_ExchangeRate order by iExchangeRateId desc
+	end
+	else if(@Operation = 'TrailBalanceData')
+	begin
+		SELECT 
+		InnerTable.AccountType,InnerTable.iParentId AccountGroup,InnerTable.sCode AccountCode,
+		InnerTable.Account AccountName,cc.sName CostCenter,s.sName Site,p.sName Project ,a.sName Activity,sc.sName ServiceCode,d.sName Division, mCore_Currency.sCode Currency,
+		TranDr,TranCr,(TranDr + TranCr) TranBal,Debit, Credit,(Debit + Credit) Bal,cc.sCode CCcode,s.sCode SiteCode, mCore_Currency.sName CurrencyName
+		FROM (
+			SELECT tCore_Data_0.iBodyId, mCore_Account.sName[Account], iBookNo[iMasterId],mCore_Account.iMasterId[iBookNo],
+			CASE WHEN mAmount2 < 0 THEN mAmount2 ELSE 0 END Debit, 
+			CASE WHEN mAmount2 > 0 THEN mAmount2 ELSE 0 END Credit,
+			CASE WHEN ISNULL(mFxAmount2,mAmount2) < 0 THEN ISNULL(mFxAmount2,mAmount2) ELSE 0 END TranDr, 
+			CASE WHEN ISNULL(mFxAmount2,mAmount2) > 0 THEN ISNULL(mFxAmount2,mAmount2) ELSE 0 END TranCr,
+			dbo.fCore_GetAccountTypeNameById(mCore_Account.iAccountType) AccountType,mCore_Account.sCode,t.iParentId
+			FROM tCore_Data_0
+			JOIN tCore_Header_0 ON tCore_Data_0.iHeaderId = tCore_Header_0.iHeaderId
+			JOIN mCore_Account ON tCore_Data_0.iCode = mCore_Account.iMasterId
+			LEFT JOIN tCore_Data_FX_0 ON tCore_Data_FX_0.iBodyId = tCore_Data_0.iBodyId
+			left join mCore_AccountTreeDetails t on t.iMasterId = mCore_Account.iMasterId
+				----WHERE iBookNo = @p1 
+			UNION ALL
+			SELECT tCore_Data_0.iBodyId, mCore_Account.sName[Account], iCode[iMasterId],mCore_Account.iMasterId[iBookNo],
+			CASE WHEN mAmount1 < 0 THEN mAmount1 ELSE 0 END Debit, 
+			CASE WHEN mAmount1 > 0 THEN mAmount1 ELSE 0 END Credit,
+			CASE WHEN ISNULL(mFXAmount1,mAmount1) < 0 THEN ISNULL(mFXAmount1,mAmount1) ELSE 0 END TranDr, 
+			CASE WHEN ISNULL(mFXAmount1,mAmount1) > 0 THEN ISNULL(mFXAmount1,mAmount1) ELSE 0 END TranCr,
+			dbo.fCore_GetAccountTypeNameById(mCore_Account.iAccountType) AccountType,mCore_Account.sCode,t.iParentId
+			FROM tCore_Data_0 
+			JOIN tCore_Header_0 ON tCore_Data_0.iHeaderId = tCore_Header_0.iHeaderId
+			JOIN mCore_Account ON tCore_Data_0.iBookNo = mCore_Account.iMasterId
+			LEFT JOIN tCore_Data_FX_0 ON tCore_Data_FX_0.iBodyId = tCore_Data_0.iBodyId
+			left join mCore_AccountTreeDetails t on t.iMasterId = mCore_Account.iMasterId
+				----WHERE iCode = @p1 
+		)InnerTable
+		JOIN tCore_Data_0 ON tCore_Data_0.iBodyId = InnerTable.iBodyId  
+		JOIN tCore_Header_0 ON tCore_Data_0.iHeaderId = tCore_Header_0.iHeaderId
+		JOIN mCore_Currency  ON mCore_Currency.iCurrencyId = tCore_Data_0.iCurrencyId  
+		LEFT JOIN tCore_Data_Tags_0 ON tCore_Data_Tags_0.iBodyId = tCore_Data_0.iBodyId 
+		LEFT JOIN mCore_Project p ON p.iMasterId = tCore_Data_Tags_0.iTag3002 
+		LEFT JOIN muCore_Project ON muCore_Project.iMasterId = p.iMasterId 
+		left join mCore_CostCenter cc on tCore_Data_Tags_0.iTag5 = cc.iMasterId
+		left join mCore_Site s on tCore_Data_Tags_0.iTag3011 = s.iMasterId
+		left join mCore_ServiceCode sc on tCore_Data_Tags_0.iTag3013 = sc.iMasterId
+		left join mCore_Activity a on tCore_Data_Tags_0.iTag3012 = a.iMasterId
+		left join mCore_Division d on muCore_Project.Division = d.iMasterId
+
+		WHERE tCore_Data_0.bUpdateFA = 1 AND tCore_Data_0.bSuspendUpdateFA = 0  AND tCore_Header_0.bSuspended = 0 AND tCore_Data_0.iAuthStatus < 2 AND dbo.IntToDate(tCore_Header_0.iDate) BETWEEN @P3 AND @p11  AND (Debit < 0 OR Credit > 0 OR TranDr < 0 OR TranCr > 0 )  AND  (tCore_Data_Tags_0.iTag3002 in  (select items from dbo.CSVToTable(@p0,',')) or @p0 = '') AND  (tCore_Data_Tags_0.iTag5 in  (select items from dbo.CSVToTable(@p6,',')) or @p6 = '') AND  (tCore_Data_Tags_0.iTag3011 in  (select items from dbo.CSVToTable(@p7,',')) or @p7 = '') AND  (tCore_Data_Tags_0.iTag3013  in  (select items from dbo.CSVToTable(@p8,',')) or @p8 = '') AND  (tCore_Data_Tags_0.iTag3012  in  (select items from dbo.CSVToTable(@p9,',')) or @p9 = '') AND  (muCore_Project.Division  in  (select items from dbo.CSVToTable(@p5,',')) or @p5 = '') AND(InnerTable.iBookNo in (select items from dbo.CSVToTable(@p12,',')) or (@p12 = '')) AND (InnerTable.iParentId in (select items from dbo.CSVToTable(@p13,',')) or (@p13 = ''))
+	end
+	else if(@Operation = 'getAllProjects')
+	begin
+		select mCore_Project.iMasterId,mCore_Project.sName,mCore_Project.sCode from muCore_Project
+		inner join mCore_Project on muCore_Project.iMasterId = mCore_Project.iMasterId where mCore_Project.iMasterId<>0
+	end
+	else if(@Operation = 'getDivision')
+	begin
+		select sName,iMasterId,sCode from mCore_Division where iMasterId<>0
+	end
+	else if(@Operation = 'getCostCenter')
+	begin
+		select sName,iMasterId,sCode from mCore_CostCenter where iMasterId<>0
+	end
+	else if(@Operation = 'getSite')
+	begin
+		select sName,iMasterId,sCode from mCore_Site where iMasterId<>0
+	end
+	else if(@Operation = 'getActivity')
+	begin
+		select sName,iMasterId,sCode from mCore_Activity where iMasterId<>0
+	end
+	else if(@Operation = 'getServiceCode')
+	begin
+		select sName,iMasterId,sCode from mCore_ServiceCode where iMasterId<>0
+	end
+	else if(@Operation = 'getPrjStatus')
+	begin
+		select ProjectStatus from muCore_Project where iMasterId = @p1;
+	end
+	else if(@Operation = 'getAccountGroup')-- getting all accounts
+	begin
+		select * from mCore_Account where bGroup= 1 and iMasterId <>0 order by sName
+	end
+	else if(@Operation = 'getAccountGrouplistbyName')-- getting all accounts
+	begin
+		select * from mCore_Account where bGroup= 1 and sName like @p4+'%' order by sName
+	end
+	else if(@Operation = 'getAccountGrouplistbyCode')-- getting all accounts
+	begin
+		select * from mCore_Account where bGroup= 1 and  sCode like @p4+'%' order by sCode
+	end
+    end
+           

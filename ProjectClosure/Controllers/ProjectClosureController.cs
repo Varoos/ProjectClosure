@@ -39,7 +39,7 @@ namespace ProjectClosure.Controllers
             {
                 containers.Add(new SelectListItem()
                 {
-                    Text = "("+ ds.Tables[0].Rows[i]["sCode"].ToString()+") "+ds.Tables[0].Rows[i]["sName"].ToString(),
+                    Text = ds.Tables[0].Rows[i]["sName"].ToString(),
                     Value = ds.Tables[0].Rows[i]["iMasterId"].ToString(),
                 });
             }
@@ -89,75 +89,85 @@ namespace ProjectClosure.Controllers
         }
         public ActionResult ProjectClosureReport(int CompanyId, int Project, string ReportDate, int Account,string ProjectName,string AccountName, string Customer, string Division,int DivisionId,int MLId,int DivisionParentId,int PL_ac,int CustomerId)
         {
-            TempData["CompanyId"] = CompanyId;
-            TempData["Project"] = Project;
-            TempData["ReportDate"] = ReportDate;
-            TempData["Account"] = Account;
-            DateTime reportDt = Convert.ToDateTime(ReportDate);
-           
-            #region QueryData
-
-
-            string Strsql = string.Format($@"exec pCore_CommonSp @Operation = getData,@p1 = {Account},@p2 = {Project}");
-            DataSet ds = DBClass.GetDataSet(Strsql, CompanyId, ref errors1);
-
-            int table = ds.Tables.Count;
-            ProjectClosureModel reportObj = new ProjectClosureModel();
-            List<WIP_Transactions> listobj = new List<WIP_Transactions>();
-            if (ds.Tables[0].Rows.Count > 0)
+            try
             {
-                foreach (DataRow dr in ds.Tables[0].Rows)
-                {
-                    listobj.Add(new WIP_Transactions
-                    {
-                        CostCenter = dr["costcenter"].ToString(),
-                        Site = dr["site"].ToString(),
-                        DocNo = dr["DocNo"].ToString(),
-                        Date = Convert.ToDateTime(dr["Date"].ToString()),
-                        Dr = Convert.ToDecimal(dr["Debit"].ToString()),
-                        Cr = Convert.ToDecimal(dr["Credit"].ToString()),
-                        Balance = Convert.ToDecimal(dr["Balance"].ToString()),
-                        count= Convert.ToInt32(dr["c"].ToString()),
-                        rno = Convert.ToInt32(dr["row_num"].ToString()),
-                        DivisionId = DivisionId,
-                        CostCenterID = Convert.ToInt32(dr["CostCenterId"].ToString()),
-                        SiteId = Convert.ToInt32(dr["SiteId"].ToString()),
-                        ProjectId = Project,
-                        ML_id = MLId,
-                        DivisionParentId = DivisionParentId,
-                        PL_ac = PL_ac,
-                        CustomerId = CustomerId
-                    }) ;
-                }
-                reportObj.listWIP_Transactions = listobj;
-                TempData["listdata"] = listobj;
-                TempData.Keep();
+                DBClass.SetLog("Entered ProjectClosureReport");
+                ProjectClosureModel reportObj = new ProjectClosureModel();
+                DBClass.SetLog("Setting SearchData");
                 SearchCriteria objA = new SearchCriteria();
-                objA.Cid = CompanyId;
-                objA.ClosureDate = ReportDate;
-                objA.Project = ProjectName;
-                objA.Division = Division;
-                objA.Customer = Customer;
-                objA.WIPAc = AccountName;
-                reportObj.SearchCriteria = objA;
+                objA.ProjectId = Project;
+                objA.WIPAcId = Account;
+                objA.CustomerId = CustomerId;
+                objA.DivisionId = DivisionId;
+                DateTime reportDt = Convert.ToDateTime(ReportDate);
+                #region QueryData
+                string Strsql = string.Format($@"exec pCore_CommonSp @Operation = getData,@p1 = {Account},@p2 = {Project}");
+                DataSet ds = DBClass.GetDataSet(Strsql, CompanyId, ref errors1);
+                DBClass.SetLog("Getting ds. COunt = "+ ds.Tables[0].Rows.Count.ToString());
+                int table = ds.Tables.Count;
+               
+                List<WIP_Transactions> listobj = new List<WIP_Transactions>();
+                if (ds.Tables[0].Rows.Count > 0)
+                {
+                    foreach (DataRow dr in ds.Tables[0].Rows)
+                    {
+                        DBClass.SetLog("Entered foreach loop");
+                        DBClass.SetLog("Entered foreach loop DAte = "+ dr["Date"].ToString());
+                        listobj.Add(new WIP_Transactions
+                        {
+                            CostCenter = dr["costcenter"].ToString(),
+                            Site = dr["site"].ToString(),
+                            DocNo = dr["DocNo"].ToString(),
+                            Date = dr["Date"].ToString(),
+                            Dr = Convert.ToDecimal(dr["Debit"].ToString()),
+                            Cr = Convert.ToDecimal(dr["Credit"].ToString()),
+                            Balance = Convert.ToDecimal(dr["Balance"].ToString()),
+                            count = Convert.ToInt32(dr["c"].ToString()),
+                            rno = Convert.ToInt32(dr["row_num"].ToString()),
+                            DivisionId = DivisionId,
+                            CostCenterID = Convert.ToInt32(dr["CostCenterId"].ToString()),
+                            SiteId = Convert.ToInt32(dr["SiteId"].ToString()),
+                            ProjectId = Project,
+                            ML_id = MLId,
+                            DivisionParentId = DivisionParentId,
+                            PL_ac = PL_ac,
+                            CustomerId = CustomerId
+                        });
+                    }
+                    reportObj.listWIP_Transactions = listobj;
+                    
+                    objA.Cid = CompanyId;
+                    objA.ClosureDate = ReportDate;
+                    objA.Project = ProjectName;
+                    objA.Division = Division;
+                    objA.Customer = Customer;
+                    objA.WIPAc = AccountName;
+                    reportObj.SearchCriteria = objA;
+                    Session["PCData"] = reportObj;
+                }
+                #endregion
+                return View(reportObj);
             }
-            #endregion
-            return View(reportObj);
+            catch (Exception ex)
+            {
+                DBClass.SetLog("ProjectClosureReport Exception= "+ex.Message);
+                throw ex;
+            }
         }
 
         public ActionResult ProjectClosurePosting(int CompanyId)
         {
-            TempData["CompanyId"] = CompanyId;
-            TempData.Keep();
+            DBClass.SetLog("Entered ProjectClosurePosting " +CompanyId.ToString());
             string Message = "";
             try
             {
-                int compId = BL_Configdata.Focus8CompID;
+                ProjectClosureModel _data = (ProjectClosureModel)Session["PCData"];
+                int compId = _data.SearchCriteria.Cid;
                 BL_Registry.SetLog("compId" + compId.ToString());
                 string sessionID = GetSessionId(compId);
                 BL_Registry.SetLog("sessionID" + sessionID.ToString());
                 List<WIP_Transactions> trans = new List<WIP_Transactions>();
-                trans = (List<WIP_Transactions>)TempData["listdata"];
+                trans = (List<WIP_Transactions>)_data.listWIP_Transactions;
                 if (trans.Count > 0)
                 {
                     BL_Registry.SetLog("Trans Count" + trans.Count.ToString());
@@ -178,7 +188,7 @@ namespace ProjectClosure.Controllers
                             }
                             else if (pay.Balance > 0)//positive// credit balance
                             {
-                                DrAC = Convert.ToInt32(TempData["Account"]);
+                                DrAC = Convert.ToInt32(_data.SearchCriteria.WIPAcId);
                             }
                         }
                         else
@@ -189,7 +199,7 @@ namespace ProjectClosure.Controllers
                             }
                             else if (pay.Balance > 0) //positive// credit balance
                             {
-                                DrAC = Convert.ToInt32(TempData["Account"]);
+                                DrAC = Convert.ToInt32(_data.SearchCriteria.WIPAcId);
                             }
                         }
 
@@ -198,7 +208,7 @@ namespace ProjectClosure.Controllers
                         {
                             if (pay.Balance < 0) // negative//debit balance
                             {
-                                CrAC = Convert.ToInt32(TempData["Account"]);
+                                CrAC = Convert.ToInt32(_data.SearchCriteria.WIPAcId);
                                 
                             }
                             else if (pay.Balance > 0) //positive// credit balance
@@ -210,7 +220,7 @@ namespace ProjectClosure.Controllers
                         {
                             if (pay.Balance < 0)// negative//debit balance
                             {
-                                CrAC = Convert.ToInt32(TempData["Account"]);
+                                CrAC = Convert.ToInt32(_data.SearchCriteria.WIPAcId);
                                
                             }
                             else if (pay.Balance > 0)//positive// credit balance
@@ -222,8 +232,8 @@ namespace ProjectClosure.Controllers
                         Hashtable headerJV = new Hashtable();
                         Hashtable objJVBody = new Hashtable();
                         List<Hashtable> listBodyJV = new List<Hashtable>();
-                        headerJV.Add("Date", Convert.ToString(TempData["ReportDate"]));
-                        BL_Registry.SetLog("Date" + Convert.ToString(TempData["ReportDate"]));
+                        headerJV.Add("Date", Convert.ToString(_data.SearchCriteria.ClosureDate));
+                        BL_Registry.SetLog("Date" + Convert.ToString(_data.SearchCriteria.ClosureDate));
                         headerJV.Add("Currency", currencyid);
                         headerJV.Add("ExchangeRate", 1);
                         objJVBody.Add("Cost Center", pay.CostCenterID);
@@ -268,11 +278,7 @@ namespace ProjectClosure.Controllers
 
                     if(JVPostingFailed == 0)
                     {
-                        //Hashtable objHash1 = new Hashtable();
-                        //objHash1.Add("MasterId", trans[0].ProjectId);
-                        //objHash1.Add("ProjectStatus", 1);
-                        //objHash1.Add("ProjectClosureDate", Convert.ToString(TempData["ReportDate"]));
-                        string sqlquery = string.Format($@"exec pCore_CommonSp @Operation=updateProjectStatus, @p1={trans[0].ProjectId},@p3='{Convert.ToString(TempData["ReportDate"])}'");
+                        string sqlquery = string.Format($@"exec pCore_CommonSp @Operation=updateProjectStatus, @p1={trans[0].ProjectId},@p3='{Convert.ToString(_data.SearchCriteria.ClosureDate)}'");
                         int a = DBClass.GetExecute(sqlquery, compId, ref errors1);
                         if (a == 1)
                         {
@@ -287,27 +293,6 @@ namespace ProjectClosure.Controllers
                             BL_Registry.SetLog2( "\n Project Updation Failed with MasterId: " + trans[0].ProjectId);
                             return Json("Error," + "Project Updation Failed", JsonRequestBehavior.AllowGet);
                         }
-                        //var postingData = new PostingData();
-                        //postingData.data.Add(objHash1);
-                        //string errText = "";
-                        //string sContent = JsonConvert.SerializeObject(postingData);
-                        //string s = Focus8API.Post(baseUrl + "/Masters/Core__Project", sContent, sessionID, ref errText);
-                        //if (s != null)
-                        //{
-                        //    var res = JsonConvert.DeserializeObject<APIResponse.PostResponse>(s);
-                        //    if (res.result == -1)
-                        //    {
-
-                        //        Message = "Project Updation Failed" + "\n";
-                        //        BL_Registry.SetLog("Project Updation Failed with MasterId: " + trans[0].ProjectId);
-                        //        BL_Registry.SetLog2(res + "\n " + "Project Updation Failed with MasterId: " + trans[0].ProjectId + " \n Error Message : " + res.message);
-                        //    }
-                        //    else
-                        //    {
-                        //        Message = "Project Updation done Successfully" + "\n";
-                        //        BL_Registry.SetLog("Project Updation Success with MasterId: " + trans[0].ProjectId);
-                        //    }
-                        //}
                     }
                     else
                     {
@@ -417,14 +402,15 @@ namespace ProjectClosure.Controllers
         {
 
             #region TempData
-            int CompanyId = Convert.ToInt32(TempData["CompanyId"]);
-            string ReportDate = Convert.ToString(TempData["ReportDate"]);
-            int Project = Convert.ToInt32(TempData["Project"]);
-            string ProjectName = Convert.ToString(TempData["ProjectName"]);
+            ProjectClosureModel _data = (ProjectClosureModel)Session["PCData"];
+            int CompanyId = Convert.ToInt32(_data.SearchCriteria.Cid);
+            BL_Registry.SetLog("compId" + CompanyId.ToString());
+            string ReportDate = Convert.ToString(_data.SearchCriteria.ClosureDate);
+            int Project = Convert.ToInt32(_data.SearchCriteria.ProjectId);
+            string ProjectName = Convert.ToString(_data.SearchCriteria.Project);
             DateTime reportDt = Convert.ToDateTime(ReportDate);
             List<WIP_Transactions> trans = new List<WIP_Transactions>();
-            trans = (List<WIP_Transactions>)TempData["listdata"];
-            TempData.Keep();
+            trans = (List<WIP_Transactions>)_data.listWIP_Transactions;
             #endregion
 
             System.Data.DataTable data = new System.Data.DataTable("PROJECT CLOSURE");

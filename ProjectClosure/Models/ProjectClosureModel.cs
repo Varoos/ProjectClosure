@@ -17,7 +17,7 @@ namespace ProjectClosure.Models
         public string CostCenter { get; set; }
         public string Site { get; set; }
         public string DocNo { get; set; }
-        public DateTime Date { get; set; }
+        public string Date { get; set; }
         public decimal Dr { get; set; }
         public decimal Cr { get; set; }
         public decimal Balance { get; set; }
@@ -40,5 +40,9 @@ namespace ProjectClosure.Models
         public string Division { get; set; }
         public string Customer { get; set; }
         public string WIPAc { get; set; }
+        public int ProjectId { get; set; }
+        public int DivisionId { get; set; }
+        public int CustomerId { get; set; }
+        public int WIPAcId { get; set; }
     }
 }

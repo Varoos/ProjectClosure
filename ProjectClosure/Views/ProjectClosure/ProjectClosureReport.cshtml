@@ -120,7 +120,7 @@
         </div>
         <div class="col-lg-4 col-md-4 col-sm-4" style="text-align:center;">
             <button type="submit" id="btnExcel" class="btn btn-primary btn-sm">Export to Excel</button>
-            @Html.ActionLink("Back", "Index", "ProjectClosure", new { @CompanyId = TempData["CompanyId"] }, new { @class = "btn btn-primary btn-sm" })
+            @Html.ActionLink("Back", "Index", "ProjectClosure", new { @CompanyId = Model.SearchCriteria.Cid }, new { @class = "btn btn-primary btn-sm" })
             <button type="button" id="btnPost" class="btn btn-primary btn-sm">Post</button>
         </div>
     </div>
@@ -156,7 +156,7 @@
                                         <td style="text-align:center;">@obj.CostCenter</td>
                                         <td style="text-align:center;">@obj.Site</td>
                                         <td style="text-align:center;">@obj.DocNo</td>
-                                        <td style="text-align:center;">@obj.Date.ToString().Split(' ')[0]</td>
+                                        <td style="text-align:center;">@obj.Date.ToString()</td>
                                         <td style="text-align:right;">@obj.Dr.ToString("#,##0.00")</td>
                                         <td style="text-align:right;">@obj.Cr.ToString("#,##0.00")</td>
                                         @if (obj.count == obj.rno)
@@ -218,7 +218,7 @@
     <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
     <script src="~/Scripts/bootstrap.min.js"></script>
     <script>
-        var compId=@TempData["CompanyId"];
+        var compId =@Model.SearchCriteria.Cid;
         var path ='@System.Web.Configuration.WebConfigurationManager.AppSettings["IpAddress"]';
         $(document).ready(function() {
             debugger

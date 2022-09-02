@@ -73,8 +73,15 @@ namespace ProjectClosure.Models
             StreamWriter objSw = null;
             try
             {
-                string sFilePath = System.IO.Path.GetTempPath() + "FantasiaTradingLog" + DateTime.Now.Date.ToString("ddMMyyyy") + ".txt";
-                objSw = new StreamWriter(sFilePath, true);
+                string AppLocation = "";
+                AppLocation = System.Environment.GetFolderPath(System.Environment.SpecialFolder.LocalApplicationData);
+                string folderName = AppLocation + "\\LogFiles";
+                if (!Directory.Exists(folderName))
+                {
+                    Directory.CreateDirectory(folderName);
+                }
+                string sFilePath2 = folderName + "\\PrjProjectClosureLog_" + DateTime.Now.ToString("dd-MM-yyyy") + ".txt";
+                objSw = new StreamWriter(sFilePath2, true);
                 objSw.WriteLine(DateTime.Now.ToString() + " " + content + Environment.NewLine);
             }
             catch (Exception ex)

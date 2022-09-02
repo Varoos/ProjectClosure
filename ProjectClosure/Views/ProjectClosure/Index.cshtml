@@ -120,6 +120,8 @@
                         @*<button type="button" class="btn btn-primary" id="btExcel">Excel</button>*@
                         <button type="button" class="btn btn-primary" id="btnok">Load</button>
                         <button type="button" class="btn btn-primary" id="btnClose" name="Close">Close</button>
+                        <input type="hidden" id="acname" />
+                        <input type="hidden" id="accode" />
                     </div>
                 </div>
             </div>
@@ -196,8 +198,13 @@
             //$('.btn').css('text-align', 'left');
             //$('.multiselect-container .active').css('display', 'none')
             //$('.multiselect-container').children().eq(1).text('');
-            //$("#Project").on('click', function () {
+            //$("#Project").focusout(function () {
+            //    debugger;
             //    getProjectDetails();
+            //});
+            //$('#WIPAc').focusout(function () {
+            //    debugger;
+            //    AccountSelectionChangedEvent();
             //});
             $('#btnok').hide();
             //$("#WIPAc").on('change', function () {
@@ -261,7 +268,7 @@
                                 $("#Projectlist").empty();
                                 var obj = JSON.parse(response);
                                 $.each(obj, function (i, item) {
-                                    $("#Projectlist").append($("<option data-value=" + item.iMasterId + ">" + '(' + item.sCode + ') ' + item.sName + "</option>"));
+                                    $("#Projectlist").append($("<option data-value=" + item.iMasterId + " data-code =" + item.sCode + " data-name=" + item.sName + ">" + '(' + item.sCode + ') ' + item.sName + "</option>"));
                                 });
                             }
                         },
@@ -273,6 +280,7 @@
             }
             else if (event.target.id == "WIPAc") {
                 keysPressed2[event.key] = true;
+                var SearchAcc = "";
                 if (event.key == 'Shift') {
                     $("#Accountlist").empty();
                     $("#WIPAc").val('');
@@ -284,14 +292,6 @@
                     }
 
                 }
-                //else if (keysPressed2['Alt'] && event.key == 'n') {
-                //    keysPressed2 = {};
-                //    operation2 = "getAccountslistbyName";
-                //}
-                //else if (keysPressed2['Alt'] && event.key == 'c') {
-                //    keysPressed2 = {};
-                //    operation2 = "getAccountslistbyCode";
-                //}
                 else {
                     $.ajax({
                         url: path + domain + '/ProjectClosure/getAccountslist',
@@ -309,7 +309,7 @@
                                 $("#Accountlist").empty();
                                 var obj = JSON.parse(response);
                                 $.each(obj, function (i, item) {
-                                    $("#Accountlist").append($("<option data-value=" + item.iMasterId + ">" + '(' + item.sCode + ') ' + item.sName + "</option>"));
+                                    $("#Accountlist").append($("<option data-value=" + item.iMasterId + " data-code =" + item.sCode + " data-sname=" + item.sName + ">" + '(' + item.sCode + ') ' + item.sName + "</option>"));
                                 });
                             }
                         },
@@ -328,8 +328,25 @@
         }
         
         var path = '@System.Web.Configuration.WebConfigurationManager.AppSettings["IpAddress"]';
-            var domain ='@System.Web.Configuration.WebConfigurationManager.AppSettings["domain"]';
+        var domain = '@System.Web.Configuration.WebConfigurationManager.AppSettings["domain"]';
+        var SelectedProjectName = '';
 
+
+        function AccountSelectionChangedEvent() {
+            debugger;
+            var Accountid = $('#Accountlist option').filter(function () {
+                return this.value == $("#WIPAc").val();
+            }).data('value');
+            var AccountCode = $('#Accountlist option').filter(function () {
+                return this.value == $("#WIPAc").val();
+            }).data('code');
+            var AccountName = $('#Accountlist option').filter(function () {
+                return this.value == $("#WIPAc").val();
+            }).text();
+            AccountName = AccountName.replace('(' + AccountCode + ')', '').trim();
+            $("#acname").val(AccountName);
+            $("#accode").val(AccountCode);
+        }
         //----------------------------- report method calling ------------------------------------
 
         $("#btnok").click(function () {
@@ -390,6 +407,7 @@
                     DivisionParentId = obj[0].iParentId;
                     plac = obj[0].ProfitLossAC;
                     customerid = obj[0].CustomerId;
+                    SelectedProjectName = obj[0].ProjectName;
                     LoadButtonToggleCondition();
                 },
                 error: function (err) {

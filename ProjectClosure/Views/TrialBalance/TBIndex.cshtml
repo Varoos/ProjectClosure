@@ -49,104 +49,128 @@
 
 @using (Html.BeginForm("", "", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
 {
-    <div class="container">
-        <br />
+<div class="container">
+    <br />
 
-        <div class="row">
-            <div class="col-md-12">
-                <div class="col-md-6">
-                    <div class="form-group">
-                        @Html.LabelFor(m => m.FromDate, new { @class = "col-md-4 control-label" })
-                        <div class="col-md-8">
-                            @Html.EditorFor(model => model.FromDate, new { htmlAttributes = new { @class = "form-control ", required = "", @type = "Date", @placeholder = "dd-mm-yyyy" } })
-                            @Html.ValidationMessageFor(model => model.FromDate, "", new { @class = "text-danger" })
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="form-group">
-                        @Html.LabelFor(m => m.ToDate, new { @class = "col-md-4 control-label" })
-                        <div class="col-md-8">
-                            @Html.EditorFor(model => model.ToDate, new { htmlAttributes = new { @class = "form-control ", required = "", @type = "Date", @placeholder = "dd-mm-yyyy" } })
-                            @Html.ValidationMessageFor(model => model.ToDate, "", new { @class = "text-danger" })
-                        </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="col-md-6">
+                <div class="form-group">
+                    @Html.LabelFor(m => m.FromDate, new { @class = "col-md-4 control-label" })
+                    <div class="col-md-8">
+                        @Html.EditorFor(model => model.FromDate, new { htmlAttributes = new { @class = "form-control ", required = "", @type = "Date", @placeholder = "dd-mm-yyyy" } })
+                        @Html.ValidationMessageFor(model => model.FromDate, "", new { @class = "text-danger" })
                     </div>
                 </div>
             </div>
-            <div class="col-md-12">
-                <div class="col-md-6">
-                    <div class="form-group">
-                        @Html.LabelFor(m => m.Division, new { @class = "col-md-4 control-label" })
-                        <div class="col-md-8">
-                            @Html.DropDownListFor(model => model.Division, new SelectList(ViewBag.Division, "Value", "Text"), new { @class = "form-control", multiple = "multiple" })
-                            @Html.ValidationMessageFor(model => model.Division, "", new { @class = "text-danger" })
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="form-group">
-                        @Html.LabelFor(m => m.Project, new { @class = "col-md-4 control-label" })
-                        <div class="col-md-8">
-                            @Html.DropDownListFor(model => model.Project, new SelectList(ViewBag.Project, "Value", "Text"), new { @class = "form-control", multiple = "multiple" })
-                            @Html.ValidationMessageFor(model => model.Project, "", new { @class = "text-danger" })
-                        </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    @Html.LabelFor(m => m.ToDate, new { @class = "col-md-4 control-label" })
+                    <div class="col-md-8">
+                        @Html.EditorFor(model => model.ToDate, new { htmlAttributes = new { @class = "form-control ", required = "", @type = "Date", @placeholder = "dd-mm-yyyy" } })
+                        @Html.ValidationMessageFor(model => model.ToDate, "", new { @class = "text-danger" })
                     </div>
                 </div>
             </div>
-            <div class="col-md-12">
-                <div class="col-md-6">
-                    <div class="form-group">
-                        @Html.LabelFor(m => m.CostCenter, new { @class = "col-md-4 control-label" })
-                        <div class="col-md-8">
-                            @Html.DropDownListFor(model => model.CostCenter, new SelectList(ViewBag.CostCenter, "Value", "Text"), new { @class = "form-control", multiple = "multiple" })
-                            @Html.ValidationMessageFor(model => model.CostCenter, "", new { @class = "text-danger" })
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="form-group">
-                        @Html.LabelFor(m => m.Site, new { @class = "col-md-4 control-label" })
-                        <div class="col-md-8">
-                            @Html.DropDownListFor(model => model.Site, new SelectList(ViewBag.Site, "Value", "Text"), new { @class = "form-control", multiple = "multiple" })
-                            @Html.ValidationMessageFor(model => model.Site, "", new { @class = "text-danger" })
-                        </div>
+        </div>
+        <div class="col-md-12">
+            <div class="col-md-6">
+                <div class="form-group">
+                    @Html.LabelFor(m => m.Division, new { @class = "col-md-4 control-label" })
+                    <div class="col-md-8">
+                        @Html.DropDownListFor(model => model.Division, new SelectList(ViewBag.Division, "Value", "Text"), new { @class = "form-control", multiple = "multiple" })
+                        @Html.ValidationMessageFor(model => model.Division, "", new { @class = "text-danger" })
                     </div>
                 </div>
             </div>
-            <div class="col-md-12">
-                <div class="col-md-6">
-                    <div class="form-group">
-                        @Html.LabelFor(m => m.Activity, new { @class = "col-md-4 control-label" })
-                        <div class="col-md-8">
-                            @Html.DropDownListFor(model => model.Activity, new SelectList(ViewBag.Activity, "Value", "Text"), new { @class = "form-control", multiple = "multiple" })
-                            @Html.ValidationMessageFor(model => model.Activity, "", new { @class = "text-danger" })
-                        </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    @Html.LabelFor(m => m.Project, new { @class = "col-md-4 control-label" })
+                    <div class="col-md-8">
+                        @Html.DropDownListFor(model => model.Project, new SelectList(ViewBag.Project, "Value", "Text"), new { @class = "form-control", multiple = "multiple" })
+                        @Html.ValidationMessageFor(model => model.Project, "", new { @class = "text-danger" })
                     </div>
                 </div>
-                <div class="col-md-6">
-                    <div class="form-group">
-                        @Html.LabelFor(m => m.ServiceCode, new { @class = "col-md-4 control-label" })
-                        <div class="col-md-8">
-                            @Html.DropDownListFor(model => model.ServiceCode, new SelectList(ViewBag.ServiceCode, "Value", "Text"), new { @class = "form-control", multiple = "multiple" })
-                            @Html.ValidationMessageFor(model => model.ServiceCode, "", new { @class = "text-danger" })
-                        </div>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <div class="col-md-6">
+                <div class="form-group">
+                    @Html.LabelFor(m => m.CostCenter, new { @class = "col-md-4 control-label" })
+                    <div class="col-md-8">
+                        @Html.DropDownListFor(model => model.CostCenter, new SelectList(ViewBag.CostCenter, "Value", "Text"), new { @class = "form-control", multiple = "multiple" })
+                        @Html.ValidationMessageFor(model => model.CostCenter, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    @Html.LabelFor(m => m.Site, new { @class = "col-md-4 control-label" })
+                    <div class="col-md-8">
+                        @Html.DropDownListFor(model => model.Site, new SelectList(ViewBag.Site, "Value", "Text"), new { @class = "form-control", multiple = "multiple" })
+                        @Html.ValidationMessageFor(model => model.Site, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <div class="col-md-6">
+                <div class="form-group">
+                    @Html.LabelFor(m => m.Activity, new { @class = "col-md-4 control-label" })
+                    <div class="col-md-8">
+                        @Html.DropDownListFor(model => model.Activity, new SelectList(ViewBag.Activity, "Value", "Text"), new { @class = "form-control", multiple = "multiple" })
+                        @Html.ValidationMessageFor(model => model.Activity, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    @Html.LabelFor(m => m.ServiceCode, new { @class = "col-md-4 control-label" })
+                    <div class="col-md-8">
+                        @Html.DropDownListFor(model => model.ServiceCode, new SelectList(ViewBag.ServiceCode, "Value", "Text"), new { @class = "form-control", multiple = "multiple" })
+                        @Html.ValidationMessageFor(model => model.ServiceCode, "", new { @class = "text-danger" })
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="row">
-            <div class="col-md-12">
-                <div class="col-md-offset-10 col-md-2">
-                    <div class="form-group">
-                        @*<button type="button" class="btn btn-primary" id="btExcel">Excel</button>*@
-                        <button type="button" class="btn btn-primary" id="btnok">Load</button>
-                        <button type="button" class="btn btn-primary" id="btnClose" name="Close">Close</button>
+        <div class="col-md-12">
+            <div class="col-md-6">
+                <div class="form-group">
+                    @Html.LabelFor(m => m.AccountGroup, new { @class = "col-md-4 control-label" })
+                    <div class="col-md-8">
+                        @Html.DropDownListFor(model => model.AccountGroup, new SelectList(ViewBag.AcGrp, "Value", "Text"), new { @class = "form-control", multiple = "multiple" })
+                        @Html.ValidationMessageFor(model => model.AccountGroup, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    @Html.LabelFor(m => m.Account, new { @class = "col-md-4 control-label" })
+                    <div class="col-md-8">
+                        @Html.DropDownListFor(model => model.Account, new SelectList(ViewBag.Ac, "Value", "Text"), new { @class = "form-control", multiple = "multiple", @id = "Account" })
+                        @Html.ValidationMessageFor(model => model.Account, "", new { @class = "text-danger" })
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="col-md-offset-10 col-md-2">
+                <div class="form-group">
+                    @*<button type="button" class="btn btn-primary" id="btExcel">Excel</button>*@
+                    <button type="button" class="btn btn-primary" id="btnok">Load</button>
+                    <button type="button" class="btn btn-primary" id="btnClose" name="Close">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="searchResults">
+
+    </div>
+</div>
 }
 
 @section Scripts {
@@ -209,9 +233,11 @@
             $('#Site').multiselect(multiselectConfig);
             $('#Activity').multiselect(multiselectConfig);
             $('#ServiceCode').multiselect(multiselectConfig);
+            $('#Account').multiselect(multiselectConfig);
+            $('#AccountGroup').multiselect(multiselectConfig);
         });
-        
-      
+
+
 
         var path = '@System.Web.Configuration.WebConfigurationManager.AppSettings["IpAddress"]';
             var domain ='@System.Web.Configuration.WebConfigurationManager.AppSettings["domain"]';
@@ -230,91 +256,174 @@
             selectedServiceCode = "";
             selectedDivisionNames = "";
             selectedCostCenterNames = "";
+            selectedAcs = "";
+            selectedAcGrps = "";
+            selectedAcsName = "";
+            selectedAcGrpsName = "";
 
             var $el = $("#Project");
-            $el.find('option:selected').each(function () {
-                if (selectedProjects == "")
-                    selectedProjects = $(this).val();
-                else
-                selectedProjects = selectedProjects + "," + $(this).val();
-                //selectedProjects.push($(this).val());
-            });
+            var a =@Html.Raw(Json.Encode(@ViewBag.Project));
+            if ($el.find('option:selected').length != a.length) {
+                $el.find('option:selected').each(function () {
+                    if (selectedProjects == "")
+                        selectedProjects = $(this).val();
+                    else
+                        selectedProjects = selectedProjects + "," + $(this).val();
+                    //selectedProjects.push($(this).val());
+                });
+            }
 
             var $el1 = $("#Division");
-            $el1.find('option:selected').each(function () {
-                if (selectedDivisions == "")
-                    selectedDivisions = $(this).val();
-                else
-                    selectedDivisions = selectedDivisions + "," + $(this).val();
-                //selectedDivisions.push($(this).val());
-            });
+            var b = @Html.Raw(Json.Encode(@ViewBag.Division));
+            if ($el1.find('option:selected').length != b.length) {
+                $el1.find('option:selected').each(function () {
+                    if (selectedDivisions == "") {
+                        selectedDivisions = $(this).val();
+                        selectedDivisionNames = $(this).text();
+                    }
+                    else {
+                        selectedDivisions = selectedDivisions + "," + $(this).val();
+                        selectedDivisionNames = selectedDivisionNames + "," + $(this).text();
+                    }
+                });
+            }
 
             var $el2 = $("#CostCenter");
-            $el2.find('option:selected').each(function () {
-                if (selectedCostCenters == "")
-                    selectedCostCenters = $(this).val();
-                else
-                    selectedCostCenters = selectedCostCenters + "," + $(this).val();
-                //selectedCostCenters.push($(this).val());
-            });
-
+            var c = @Html.Raw(Json.Encode(@ViewBag.CostCenter));
+            if ($el2.find('option:selected').length != c.length) {
+                $el2.find('option:selected').each(function () {
+                    if (selectedCostCenters == "") {
+                        selectedCostCenters = $(this).val();
+                        selectedCostCenterNames = $(this).text();
+                    }
+                    else {
+                        selectedCostCenters = selectedCostCenters + "," + $(this).val();
+                        selectedCostCenterNames = selectedCostCenterNames + "," + $(this).text();
+                    }
+                });
+            }
             var $el3 = $("#Site");
-            $el3.find('option:selected').each(function () {
-                if (selectedSites == "")
-                    selectedSites = $(this).val();
-                else
-                    selectedSites = selectedSites + "," + $(this).val();
-                //selectedSites.push($(this).val());
-            });
-
+            var d = @Html.Raw(Json.Encode(@ViewBag.Site));
+            if ($el3.find('option:selected').length != d.length) {
+                $el3.find('option:selected').each(function () {
+                    if (selectedSites == "")
+                        selectedSites = $(this).val();
+                    else
+                        selectedSites = selectedSites + "," + $(this).val();
+                    //selectedSites.push($(this).val());
+                });
+            }
             var $el4 = $("#Activity");
-            $el4.find('option:selected').each(function () {
-                if (selectedActivities == "")
-                    selectedActivities = $(this).val();
-                else
-                    selectedActivities = selectedActivities + "," + $(this).val();
-                //selectedActivities.push($(this).val());
-            });
-
+            var e = @Html.Raw(Json.Encode(@ViewBag.Activity));
+            if ($el4.find('option:selected').length != e.length) {
+                $el4.find('option:selected').each(function () {
+                    if (selectedActivities == "")
+                        selectedActivities = $(this).val();
+                    else
+                        selectedActivities = selectedActivities + "," + $(this).val();
+                    //selectedActivities.push($(this).val());
+                });
+            }
             var $el5 = $("#ServiceCode");
-            $el5.find('option:selected').each(function () {
-                if (selectedServiceCode == "")
-                    selectedServiceCode = $(this).val();
-                else
-                    selectedServiceCode = selectedServiceCode + "," + $(this).val();
-                //selectedServiceCode.push($(this).val());
-            });
-
+            var f = @Html.Raw(Json.Encode(@ViewBag.ServiceCode));
+            if ($el5.find('option:selected').length != f.length) {
+                $el5.find('option:selected').each(function () {
+                    if (selectedServiceCode == "")
+                        selectedServiceCode = $(this).val();
+                    else
+                        selectedServiceCode = selectedServiceCode + "," + $(this).val();
+                    //selectedServiceCode.push($(this).val());
+                });
+            }
+            var $el7 = $("#Account");
+            var Ac =@Html.Raw(Json.Encode(@ViewBag.Ac));
+            if ($el7.find('option:selected').length == Ac.length) {
+                selectedAcsName = "All";
+                selectedAcs = "";
+            }
+            else {
+                $el7.find('option:selected').each(function () {
+                    if (selectedAcs == "") {
+                        selectedAcs = $(this).val();
+                        //selectedAcsName = $(this).text();
+                    }
+                    else {
+                        selectedAcs = selectedAcs + "," + $(this).val();
+                        //selectedAcsName = selectedAcsName + "," + $(this).text();
+                    }
+                });
+            }
+            var $el6 = $("#AccountGroup");
+            var g = @Html.Raw(Json.Encode(@ViewBag.AcGrp));
+            if ($el6.find('option:selected').length != g.length) {
+                $el6.find('option:selected').each(function () {
+                    if (selectedAcGrps == "") {
+                        selectedAcGrps = $(this).val();
+                        //selectedAcGrpsName = $(this).text();
+                    }
+                    else {
+                        selectedAcGrps = selectedAcGrps + "," + $(this).val();
+                        //selectedAcGrpsName = selectedAcGrpsName + "," + $(this).text();
+                    }
+                });
+            }
             var FromDate = $("#FromDate").val();
 
             var ToDate = $("#ToDate").val();
 
-            var $el1 = $("#Division");
-            $el1.find('option:selected').each(function () {
-                if (selectedDivisionNames == "")
-                    selectedDivisionNames = $(this).text();
-                else
-                    selectedDivisionNames = selectedDivisionNames + "," + $(this).val();
-                //selectedDivisions.push($(this).val());
-            });
-
-            var $el2 = $("#CostCenter");
-            $el2.find('option:selected').each(function () {
-                if (selectedCostCenterNames == "")
-                    selectedCostCenterNames = $(this).text();
-                else
-                    selectedCostCenterNames = selectedCostCenterNames + "," + $(this).val();
-                //selectedCostCenters.push($(this).val());
-            });
 
             if (selectedCostCenterNames == "")
                 selectedCostCenterNames = "All";
             if (selectedDivisionNames == "")
                 selectedDivisionNames = "All";
+            //if (selectedAcsName == "")
+            //    selectedAcsName = "All";
+            //if (selectedAcGrpsName == "")
+            //    selectedAcGrpsName = "All";
             debugger;
-            window.location.href = path + domain + "/TrialBalance/TrialBalanceReport?CompanyId=" + CompanyId + "&Projects=" + selectedProjects + "&Divisions=" + selectedDivisions + "&CostCenters=" + selectedCostCenters + "&Sites=" + selectedSites + "&Activities=" + selectedActivities + "&ServiceCodes=" + selectedServiceCode + "&FromDate=" + FromDate + "&ToDate=" + ToDate + "&DivisionNames=" + selectedDivisionNames+"&CostCenterNames="+selectedCostCenterNames;
+            var _objsearch = {
+                Cid : CompanyId,
+                FromDate : FromDate,
+                ToDate : ToDate,
+                Project : selectedProjects,
+                Division :selectedDivisions,
+                CostCenter : selectedCostCenters,
+                Site : selectedSites,
+                Activity :selectedActivities,
+                ServiceCode : selectedServiceCode,
+                DivisionNames : selectedDivisionNames,
+                CostCenterNames : selectedCostCenterNames,
+                AcIds : selectedAcs,
+                AcNames:selectedAcsName,
+                AcGrpIds : selectedAcGrps,
+                AcGrpNames : selectedAcGrpsName
+            };
+            $.ajax({
+                url: path + domain + '/TrialBalance/TrialBalanceReport2',
+                dataType: "json",
+                type: "POST",
+                contentType: 'application/json; charset=utf-8',
+                data: JSON.stringify(_objsearch),
+                async: true,
+                processData: false,
+                cache: false,
+                success: function (response) {
+                    debugger;
+                    $("#progress").hide();
+                    console.log(response, "Success")
+                    if (response == 'Success') {
+                        window.location.href = path + domain + '/TrialBalance/TrialBalanceReport';
+                    }
+                    else {
+                        $("#searchResults").html('<span style="color:red;fond:bold">' + response + '</span>');
+                    }
+                },
+                error: function (err) {
+                    console.log(err)
+                }
+            })
         });
-        
+
 
 
         $('#btnClose').click(function () {
